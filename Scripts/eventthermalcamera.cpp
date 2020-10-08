@@ -127,100 +127,20 @@ int main(int argc, char *argv[]){
     static uint16_t eeMLX90640[832], old_frame[832];
     uint16_t frame[834];
     uint16_t diff[832];
-    static int fps = FPS;
-    int i=0;
-    int ret;
-    static int timelim = 0;
-    static int timedel = 0;
-    static long frame_time_micros = FRAME_TIME_MICROS;
-    char *p;
+    int i=0,ret=0;
     // flag for indicating if an error occurred
     // used with try catch so the file can be closed afterwards
     bool errorFlag=false;
-    // variables for getting
-    // handle argument parsing for given frame rate
-    if(argc > 1){
-	// convert argument to long number
-        fps = strtol(argv[1], &p, 0);
-	// if error occured, print error message
-        if (errno !=0 || *p != '\0') {
-            std::cout << "Invalid framerate" << std::endl;
-            return 1;
-        }
-
-        if(argc>2){
-            timelim = strtol(argv[2],&p,0);
-            if(errno!=0 || *p != '\0'){
-                std::cout <<  "Invalid time limit. Reverting to no limit" << std::endl;
-                timelim=0;
-            }
-            else
-            {
-                if(timelim<0){
-                    std::cout << "Invalid time limit Time limit cannot be negative" << std::endl;
-                    return 2;
-                }
-            }
-	    /*
-	    if(argc>3){
-		timedel = strtol(argv[3],&p,0);
-		if(errno!=0 || *p != '\0'){
-			std::cout << "Invalid delay specified. Reverting to no delay" << std::endl;
-			timedel = 0;
-		}
-		else{
-			if(timedel<0){
-				std::cout << "Invalid delay, delay cannot be negative. Reverting to no delay" << std::endl;
-				return 3;
-			}
-		   }
-	    }*/
-        }
-        frame_time_micros = 1000000/fps;
-    }
-    std::cout << "FPS: " << fps
-              << ", Time limit: " << ((timelim==0) ? "no limit":std::to_string(timelim)+" secs") 
-              << ", Time delay: " << ((timedel==0) ? "no delay":std::to_string(timedel)+" secs")
-	      << std::endl;
-    if(fps==64){
-        frame_time_micros = 2000;
-        std::cout << "Increasing time offset to " << frame_time_micros << std::endl;
-    }
     // register signal handler for keyboard interrupt
     // on interrupt a global variable is decremented
     signal(SIGINT,keyboard_interrupt);
     std::cout << "Registered signal handler" << std::endl;
-	
     std::cout << "initialising camera..." << std::endl;
     MLX90640_SetDeviceMode(MLX_I2C_ADDR, 0);
     MLX90640_SetSubPageRepeat(MLX_I2C_ADDR, 0);
-    // set refresh rate of the camera
-    switch(fps){
-        case 1:
-		MLX90640_SetRefreshRate(MLX_I2C_ADDR, 0b001);
-		break;
-	case 2:
-		MLX90640_SetRefreshRate(MLX_I2C_ADDR, 0b010);
-		break;
-	case 4:
-		MLX90640_SetRefreshRate(MLX_I2C_ADDR, 0b011);
-		break;
-	case 8:
-		MLX90640_SetRefreshRate(MLX_I2C_ADDR, 0b100);
-		break;
-	case 16:
-		MLX90640_SetRefreshRate(MLX_I2C_ADDR, 0b101);
-		break;
-	case 32:
-		MLX90640_SetRefreshRate(MLX_I2C_ADDR, 0b110);
-		break;
-	case 64:
-		MLX90640_SetRefreshRate(MLX_I2C_ADDR, 0b111);
-		break;
-	default:
-		fprintf(stderr, "Unsupported framerate: %d\n", fps);
-		return 1;
-    }
+    // set refresh rate of the camera to 32 fps
+	// 64 fps generates some issues
+	MLX90640_SetRefreshRate(MLX_I2C_ADDR, 0b110);
     MLX90640_SetChessMode(MLX_I2C_ADDR);
     // parameters structure for camera
     paramsMLX90640 mlx90640;
@@ -231,31 +151,15 @@ int main(int argc, char *argv[]){
     MLX90640_ExtractParameters(eeMLX90640, &mlx90640);
     // main reading loop
     while(1){
-	auto start = std::chrono::system_clock::now();
-	// check for difference between the new and old frame
-	MLX90640_GetDiffData(MLX_I2C_ADDR,diff,old_frame);
-
-	// update timer variables
-	auto end = std::chrono::system_clock::now();
-	auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-	// get amount of time elapsed and cast to seconds
-	auto prog_elapsed = std::chrono::duration_cast<std::chrono::seconds>(end-start_prog);
-	// check keyboard interrupt flag
-	// if not set, break from loop
-	if(key_inter==1){
-		std::cout << "Keyboard Interrupt!" << std::endl;
-		return -1;
-	}
-	// checking if target elapsed time has passed
-	// timelim of 0 means no limit
-	if((timelim>0)&&(prog_elapsed.count()>timelim))
-	{
-		std::cout << "Time limit reached!" << std::endl;
-		return 0;
-	}
-	// force thread to sleep to match fps
-	std::this_thread::sleep_for(std::chrono::microseconds(frame_time - elapsed));
-	// copy array to update array
-	std::copy(std::begin(eeMLX90640),std::end(eeMLX90640),std::begin(old_frame));
+		// check for difference between the new and old frame
+		ret = MLX90640_GetDiffData(MLX_I2C_ADDR,diff,old_frame);
+		// check keyboard interrupt flag
+		// if not set, break from loop
+		if(key_inter==1){
+			std::cout << "Keyboard Interrupt!" << std::endl;
+			return -1;
+		}
+		// copy array to update array
+		std::copy(std::begin(eeMLX90640),std::end(eeMLX90640),std::begin(old_frame));
     }
 }
