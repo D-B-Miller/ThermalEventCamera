@@ -16,6 +16,11 @@ IEEE Trans. Pattern Anal. Machine Intell. (TPAMI), 2020
  - [teventcamera.h](Scripts/teventcamera.h), [teventcamera.cpp](Scripts.teventcamera.cpp) : Threaded class for reading i2C bus of the camera
  - [eventthermalcamera.cpp](Scripts/eventthermalcamera.cpp) : Naive attempt at reading and finding the element wise difference between the current frame and the previous one.
  
- ## Theory
+## Theory
+MLX90640 lib reading loop
  
- ![](pics/mlx90640-basic-read-loop.png)
+![](pics/mlx90640-basic-read-loop.png)
+
+Threaded event reading loop
+
+<insert picture here>
