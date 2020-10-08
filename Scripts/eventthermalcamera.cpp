@@ -47,9 +47,9 @@ void keyboard_interrupt(int)
 
 int MLX90640_GetDiffData(uint8_t slaveAddr, uint16_t *diffData, uint16_t *refData)
 {
-	static uint16_t ee[832];
-	uint16_t frameArr[834];
-	uint16_t* frameData = &frameArr;
+    static uint16_t ee[832];
+    uint16_t frameArr[834];
+    uint16_t* frameData = &frameArr;
     uint16_t dataReady = 1;
     uint16_t controlRegister1;
     uint16_t statusRegister;
@@ -116,20 +116,20 @@ int MLX90640_GetDiffData(uint8_t slaveAddr, uint16_t *diffData, uint16_t *refDat
 	// interpolate outliers
 	MLX90640_InterpolateOutliers(frameArr, ee)
     // find difference between ee and refData
-	// updates diffData
-	for(int i=0;i<832;++i)
-		diffData[i] = (uint16_t)std::abs(frameData - refData);
+    // updates diffData
+    for(int i=0;i<832;++i)
+	diffData[i] = (uint16_t)std::abs(frameData - refData);
 	
     return diffData[831];    
 }
 
 int main(int argc, char *argv[]){
-	static uint16_t eeMLX90640[832], old_frame[832];
-	uint16_t frame[834];
-	uint16_t diff[832];
+    static uint16_t eeMLX90640[832], old_frame[832];
+    uint16_t frame[834];
+    uint16_t diff[832];
     static int fps = FPS;
-	int i=0;
-	int ret;
+    int i=0;
+    int ret;
     static int timelim = 0;
     static int timedel = 0;
     static long frame_time_micros = FRAME_TIME_MICROS;
@@ -191,71 +191,71 @@ int main(int argc, char *argv[]){
     signal(SIGINT,keyboard_interrupt);
     std::cout << "Registered signal handler" << std::endl;
 	
-	std::cout << "initialising camera..." << std::endl;
-	MLX90640_SetDeviceMode(MLX_I2C_ADDR, 0);
-	MLX90640_SetSubPageRepeat(MLX_I2C_ADDR, 0);
-	// set refresh rate of the camera
-	switch(fps){
-			case 1:
-				MLX90640_SetRefreshRate(MLX_I2C_ADDR, 0b001);
-				break;
-			case 2:
-				MLX90640_SetRefreshRate(MLX_I2C_ADDR, 0b010);
-				break;
-			case 4:
-				MLX90640_SetRefreshRate(MLX_I2C_ADDR, 0b011);
-				break;
-			case 8:
-				MLX90640_SetRefreshRate(MLX_I2C_ADDR, 0b100);
-				break;
-			case 16:
-				MLX90640_SetRefreshRate(MLX_I2C_ADDR, 0b101);
-				break;
-			case 32:
-				MLX90640_SetRefreshRate(MLX_I2C_ADDR, 0b110);
-				break;
-			case 64:
-				MLX90640_SetRefreshRate(MLX_I2C_ADDR, 0b111);
-				break;
-			default:
-				fprintf(stderr, "Unsupported framerate: %d\n", fps);
-				return 1;
-		}
-	MLX90640_SetChessMode(MLX_I2C_ADDR);
-	// parameters structure for camera
-	paramsMLX90640 mlx90640;
-	MLX90640_DumpEE(MLX_I2C_ADDR, eeMLX90640);
-	// set resolution
-	MLX90640_SetResolution(MLX_I2C_ADDR, 0x03);
-	// get parameters
-	MLX90640_ExtractParameters(eeMLX90640, &mlx90640);
-	// main reading loop
-	while(1){
-		auto start = std::chrono::system_clock::now();
-		// check for difference between the new and old frame
-		MLX90640_GetDiffData(MLX_I2C_ADDR,diff,old_frame);
-		
-		// update timer variables
-		auto end = std::chrono::system_clock::now();
-		auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-		// get amount of time elapsed and cast to seconds
-		auto prog_elapsed = std::chrono::duration_cast<std::chrono::seconds>(end-start_prog);
-		// check keyboard interrupt flag
-		// if not set, break from loop
-		if(key_inter==1){
-			std::cout << "Keyboard Interrupt!" << std::endl;
-			return -1;
-		}
-		// checking if target elapsed time has passed
-		// timelim of 0 means no limit
-		if((timelim>0)&&(prog_elapsed.count()>timelim))
-		{
-			std::cout << "Time limit reached!" << std::endl;
-			return 0;
-		}
-		// force thread to sleep to match fps
-		std::this_thread::sleep_for(std::chrono::microseconds(frame_time - elapsed));
-		// copy array to update array
-		std::copy(std::begin(eeMLX90640),std::end(eeMLX90640),std::begin(old_frame));
+    std::cout << "initialising camera..." << std::endl;
+    MLX90640_SetDeviceMode(MLX_I2C_ADDR, 0);
+    MLX90640_SetSubPageRepeat(MLX_I2C_ADDR, 0);
+    // set refresh rate of the camera
+    switch(fps){
+        case 1:
+		MLX90640_SetRefreshRate(MLX_I2C_ADDR, 0b001);
+		break;
+	case 2:
+		MLX90640_SetRefreshRate(MLX_I2C_ADDR, 0b010);
+		break;
+	case 4:
+		MLX90640_SetRefreshRate(MLX_I2C_ADDR, 0b011);
+		break;
+	case 8:
+		MLX90640_SetRefreshRate(MLX_I2C_ADDR, 0b100);
+		break;
+	case 16:
+		MLX90640_SetRefreshRate(MLX_I2C_ADDR, 0b101);
+		break;
+	case 32:
+		MLX90640_SetRefreshRate(MLX_I2C_ADDR, 0b110);
+		break;
+	case 64:
+		MLX90640_SetRefreshRate(MLX_I2C_ADDR, 0b111);
+		break;
+	default:
+		fprintf(stderr, "Unsupported framerate: %d\n", fps);
+		return 1;
+    }
+    MLX90640_SetChessMode(MLX_I2C_ADDR);
+    // parameters structure for camera
+    paramsMLX90640 mlx90640;
+    MLX90640_DumpEE(MLX_I2C_ADDR, eeMLX90640);
+    // set resolution
+    MLX90640_SetResolution(MLX_I2C_ADDR, 0x03);
+    // get parameters
+    MLX90640_ExtractParameters(eeMLX90640, &mlx90640);
+    // main reading loop
+    while(1){
+	auto start = std::chrono::system_clock::now();
+	// check for difference between the new and old frame
+	MLX90640_GetDiffData(MLX_I2C_ADDR,diff,old_frame);
+
+	// update timer variables
+	auto end = std::chrono::system_clock::now();
+	auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+	// get amount of time elapsed and cast to seconds
+	auto prog_elapsed = std::chrono::duration_cast<std::chrono::seconds>(end-start_prog);
+	// check keyboard interrupt flag
+	// if not set, break from loop
+	if(key_inter==1){
+		std::cout << "Keyboard Interrupt!" << std::endl;
+		return -1;
 	}
+	// checking if target elapsed time has passed
+	// timelim of 0 means no limit
+	if((timelim>0)&&(prog_elapsed.count()>timelim))
+	{
+		std::cout << "Time limit reached!" << std::endl;
+		return 0;
+	}
+	// force thread to sleep to match fps
+	std::this_thread::sleep_for(std::chrono::microseconds(frame_time - elapsed));
+	// copy array to update array
+	std::copy(std::begin(eeMLX90640),std::end(eeMLX90640),std::begin(old_frame));
+    }
 }
