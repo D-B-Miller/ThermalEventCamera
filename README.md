@@ -23,4 +23,4 @@ The image below shows the standard MLX90640 reading loop using the library funct
 
 To achieve asynchronous reading, the process of getting the raw arrays is placed into a thread that runs continuously. The non-zero changes are logged in a queue/hash table for further processing.
 
-<insert picture here>
+![](pics/lib-read-update-loop.png)
