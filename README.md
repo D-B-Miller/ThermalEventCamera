@@ -21,6 +21,8 @@ The image below shows the standard MLX90640 reading loop using the library funct
  
 ![](pics/mlx90640-basic-read-loop.png)
 
-To achieve asynchronous reading, the process of getting the raw arrays is placed into a thread that runs continuously. The non-zero changes are logged in a queue/hash table for further processing.
+In the class ThermalEventCamera, one thread continuously reads the I2C bus, processes the raw data and updates the hash map of pixel changes. The map is a std::map of integers and a custom structure called EventData. The integer (int) is the index in the data array. The custom structure EventData is the sign of the change (-1,0,1) and the timestamp (std::chrono::systemclock) of when it is logged. This constitutes the event data recorded by Event Cameras. This is converted to a more user friendly array by the update thread. This iterates over the map and updates the output array with the sign of the change. This output array (out) is what can be processed further can is available publically.
+
+**NOTE: This is an early version of teh software and is likely to change in the future**
 
 ![](pics/lib-read-update-loop.png)
