@@ -4,7 +4,7 @@ ThermalEventCamera::ThermalEventCamera()
 {
 	MLX90640_SetDeviceMode(MLX_I2C_ADDR, 0);
 	MLX90640_SetSubPageRepeat(MLX_I2C_ADDR, 0);
-	MLX90640_SetRefreshRate(MLX_I2C_ADDR, 0b110);
+	MLX90640_SetRefreshRate(MLX_I2C_ADDR, 0b110); // set refresh rate to 32 fps
 	MLX90640_SetChessMode(MLX_I2C_ADDR);
 	MLX90640_DumpEE(MLX_I2C_ADDR, this->eeMLX90640);
     MLX90640_SetResolution(MLX_I2C_ADDR, 0x03);
@@ -56,9 +56,15 @@ ThermalEventCamera::~ThermalEventCamera()
 {
 	// set thread flag stop
 	this->stopThread = True;
+	// time to wait for threads to finish
+	std::chrono::milliseconds span (100);
+	// wait for read thread to finish 
+	while(this->readThread.wait_for(span)==std:;future_status::timeout);
+	// wait for update thread to finish
+	while(this->updateThread.wait_for(span)==std::future_status::timeout);
 }
 
-// function to get the refresh rate of the device ste on creation
+// function to get the refresh rate of the device set on creation
 int ThermalEventCamera::fps()
 {
 	return this->fps;
@@ -74,11 +80,12 @@ void ThermalEventCamera::start(){
 
 // stop the threaded I2C read
 void ThermalEventCamera::stop(){
-	this->stopThread = True;
+	this->stopThread = true;
 }
 
 // single read of I2C buff and find element wise
 void ThermalEventCamera::read(){
+	// element wise difference between pixels
 	uint16_t diff = 0;
 	// get frame data 
 	MLX90640_GetFrameData(MLX_I2C_ADDR,this->data);
@@ -90,8 +97,7 @@ void ThermalEventCamera::read(){
 		diff = this->old_frame[i]-this->frame[i];
 		// if difference between pixels is not zero
 		// add entry to map where index is the pixel index
-		if(diff!=0)
-			this->events.insert(std::pair<int,EventData>(i,diff>0? 1 : -1,i));
+		this->events.insert(std::pair<int,EventData>(i,diff>0? 1 : diff<0 ? -1 : 0,i));
 	}
 	// update last_frame with curent frame
 	std::copy(std::begin(this->frame),std::end(this->frame),std::begin(this->last_frame));
@@ -106,7 +112,16 @@ void ThermalEventCamera::threadRead(){
 
 // update the output matrix
 // clear the current matrix, query the events map for any changes and process any
-void ThermalEventCamera::update();
+void ThermalEventCamera::update(){
+	// clear output matrix
+	std::fill(std::begin(this->out),std::end(this->out),0);
+	// iterate over map, c++ 17
+	for(auto const& [key,val] : this->events)
+	{	// update non-zero entries of output matrix with sign value
+		if(val.sign!=0)
+			this->out[key] = val.sign;
+	}
+}
 
 // threaded updated based on current data
 // runs so long as stopThread is True
