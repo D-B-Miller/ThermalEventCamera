@@ -1,9 +1,9 @@
 #include <stdint.h>
 #include <iostream>
 #include <cstring>
-#include <fstream>
 #include <chrono>
 #include <thread>
+#include <future>
 #include <math.h>
 #include <stdlib.h>
 #include <errno.h>
@@ -17,7 +17,7 @@
 #include <unistd.h>
 #include "/home/pi/mlx90640-library-master/headers/MLX90640_API.h"
 #include <thread>
-
+// address of thermal camera on Pi
 #define MLX_I2C_ADDR 0x33
 
 #define IMAGE_SCALE 5
@@ -35,10 +35,19 @@
 
 // structure for event data on each pixel
 struct EventData{
-	unsigned short sign = 0;
+	signed short sign = 0;
 	static std::chrono::time_point<std::chrono::system_clock> time;
-	unsigned int loc = 0;
-	uint16_t* ptr;
+	
+	// blank constructor
+	EventData(){
+		this->time  = std::chrono::system_clock::now(); // set timestamp
+	}
+	// constructor passing 
+	EventData(unsigned short sig, unsigned int ll){
+		this->time  = std::chrono::system_clock::now(); // set timestamp
+		this->sign = sig; // set sign change
+		this->loc = ll; // set location index
+	}
 };
 
 // class for treating an MLX90640 thermal camera as an Event Camera
@@ -48,18 +57,21 @@ class ThermalEventCamera {
 		ThermalEventCamera(int fps); // constructor with fps argument
 		~ThermalEventCamera();
 		
-		int read(); // read from the I2C buff
+		void read(); // read from the I2C buff
 		void threadRead(); // function passed to readThread. Loops ThermalEventCamera::read
+		void update();
+		void threadUpdate();
 		int start(); // start threaded reading
 		int stop(); // stop threaded reading
 		int fps(); // function to get set refresh FPS
 	private:
-		uint16_t last_frame[832];
-		uint16_t frame[834];
-		EventData[832] data;
-		int fps; // fps set for camera device
+		static uint16_t data[834]; // raw data read from I2C bus
+		static uint16_t last_frame[832]; // last frame read
+		static uint16_t frame[832]; // current frame
 		paramsMLX90640 mlx90640; // camera parameters
-		static uint16_t eeMLX90640[832];
-		std::thread readThread; // thread for asynchronous reading
+		std::map<int,EventData> events; // map containing the change data
+		int fps; // fps set for camera device
+		future readThread; // thread for asynchronous reading
+		future updateThread; // thread for updating the output
 		bool stopThread=false; // flag to stop the thread from running
 };
