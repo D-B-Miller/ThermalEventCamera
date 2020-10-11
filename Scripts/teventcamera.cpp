@@ -55,7 +55,7 @@ ThermalEventCamera::ThermalEventCamera(int fps)
 ThermalEventCamera::~ThermalEventCamera()
 {
 	// set thread flag stop
-	this->stopThread = True;
+	this->stopThread = true;
 	// time to wait for threads to finish
 	std::chrono::milliseconds span (100);
 	// wait for read thread to finish 
