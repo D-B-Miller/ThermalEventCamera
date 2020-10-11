@@ -21,6 +21,6 @@ The image below shows the standard MLX90640 reading loop using the library funct
  
 ![](pics/mlx90640-basic-read-loop.png)
 
-To achieve asynchronous reading, the process of getting the raw arrays is placed into a thread that runs continuously. Changes in the array are placed in a ...
+To achieve asynchronous reading, the process of getting the raw arrays is placed into a thread that runs continuously. The non-zero changes are logged in a queue/hash table for further processing.
 
 <insert picture here>
