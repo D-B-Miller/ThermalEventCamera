@@ -66,7 +66,9 @@ int ThermalEventRaw::update(){
 	char raw[1664];
 	ssize_t rsize = 0;   // read number of bytes
 	int i=0;			 // counter var
-	uint16_t *p = this->out; // get pointer to start 
+	uint16_t *p = this->out; // get pointer to start of output matrix
+	signed short *s = this->signs; // get pointer to start of signs matrix
+	signed short sign = 0; // new calculated sign
 	// read data into buffer
 	rsize = read(this->fd,raw,1664);
 	if (errno!=0){
@@ -86,7 +88,10 @@ int ThermalEventRaw::update(){
 		diff = this->last_out[i]-this->out[i];
 		// if difference between pixels is not zero
 		// add entry to map where index is the pixel index
-		this->events.insert(std::pair<int,EventData>(i,diff>0? 1 : diff<0 ? -1 : 0,i));
+		sign = diff>0? 1 : diff<0 ? -1 : 0
+		this->events.insert(std::pair<int,EventData>(i,sign));
+		// update signs matrix
+		this->*s++ = sign;
 	}
 	// update last frame
 	std::copy(std::begin(this->out), std::end(this->out), std::begin(this->last_out));

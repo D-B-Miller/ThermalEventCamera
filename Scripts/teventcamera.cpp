@@ -97,7 +97,7 @@ void ThermalEventCamera::read(){
 		diff = this->old_frame[i]-this->frame[i];
 		// if difference between pixels is not zero
 		// add entry to map where index is the pixel index
-		this->events.insert(std::pair<int,EventData>(i,diff>0? 1 : diff<0 ? -1 : 0,i));
+		this->events.insert(std::pair<int,EventData>(i,diff>0? 1 : diff<0 ? -1 : 0));
 	}
 	// update last_frame with curent frame
 	std::copy(std::begin(this->frame),std::end(this->frame),std::begin(this->last_frame));
