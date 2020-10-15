@@ -46,7 +46,6 @@ struct EventData{
 	EventData(unsigned short sig, unsigned int ll){
 		this->time  = std::chrono::system_clock::now(); // set timestamp
 		this->sign = sig; // set sign change
-		this->loc = ll; // set location index
 	}
 };
 
