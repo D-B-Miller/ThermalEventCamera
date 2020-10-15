@@ -10,9 +10,9 @@ class EventData:
     sign : int
     ut : datetime.time
 
-    def __init__(self,sign:int):
+    def __init__(self,sign:int = 0):
         self.sign = sign
-        self.ut = datetime.datetime.now().time()
+        self.ut = datetime.now().time()
 
 # class for reading raw data from a i2c device in a threaded manner
 # based off event cameras
@@ -47,9 +47,9 @@ class ThermalRaw:
         # last data frame
         self.__last = None
         # output event data
-        self.out = [None] * 832
+        self.out = [EventData()] * 832
         # only signs of self.out
-        self.signs = [None] * 832
+        self.signs = [0] * 832
         # flag for stopping read thread
         self.__stop = False
 
