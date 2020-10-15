@@ -15,6 +15,8 @@ IEEE Trans. Pattern Anal. Machine Intell. (TPAMI), 2020
 ## Scripts
  - [teventcamera.h](Scripts/teventcamera.h), [teventcamera.cpp](Scripts.teventcamera.cpp) : Threaded class for reading i2C bus of the camera
  - [eventthermalcamera.cpp](Scripts/eventthermalcamera.cpp) : Naive attempt at reading and finding the element wise difference between the current frame and the previous one.
+ - [teventraw.h](Scripts/teventraw.h), [teventraw.cpp](Scripts/teventraw.cpp) : Threaded class to reads from camera in a raw fashion not using the i2c bus.
+ - [teventraw.py](Scripts/teventraw.py] : Python version of teventraw.h for reading camera in a raw fashion. **Not currently threaded**.
  
 ## Theory
 The image below shows the standard MLX90640 reading loop using the library functions. Each labelled block represents a collection of functions constituting a major step in the process. The arrows are the information that flows between each step.
