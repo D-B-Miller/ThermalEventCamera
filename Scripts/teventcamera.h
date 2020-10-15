@@ -43,7 +43,7 @@ struct EventData{
 		this->time  = std::chrono::system_clock::now(); // set timestamp
 	}
 	// constructor passing 
-	EventData(unsigned short sig, unsigned int ll){
+	EventData(unsigned short sig){
 		this->time  = std::chrono::system_clock::now(); // set timestamp
 		this->sign = sig; // set sign change
 	}

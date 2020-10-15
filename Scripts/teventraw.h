@@ -24,7 +24,7 @@ struct EventData{
 		this->time  = std::chrono::system_clock::now(); // set timestamp
 	}
 	// constructor passing 
-	EventData(unsigned short sig, unsigned int ll){
+	EventData(unsigned short sig){
 		this->time  = std::chrono::system_clock::now(); // set timestamp
 		this->sign = sig; // set sign change
 	}
@@ -34,12 +34,14 @@ class ThermalEventRaw{
 	private:
 		int fd; // file descriptor
 		uint16_t out[632]; // output data
+		uint16_t last_out[632]; // last frame
 		std::future<void> f; // future for reading thread
 		bool stopFlag = false; // flag for stopping read thread
 		
 	public:
 		EventData events[632]; // output array of EventData
 		signed short signs[632]; // output array of just 
+		std::map<int,EventData> events; // map containing the change data
 		
 		ThermalEventRaw(); // blank constructor
 		~ThermalEventRaw(); // deconstructor

@@ -55,6 +55,7 @@ int ThermalEventRaw::openDev(){
 
 // method for closing the device
 void ThermalEventRaw::closeDev(){
+	// if the descriptor is not an error
 	if(this->fd != -1){
 		close(this->fd);
 	}
@@ -76,7 +77,18 @@ int ThermalEventRaw::update(){
 	for(int cnt=0;cnt<832;cnt++)
 	{
 		i = cnt << 1;
+		// update out array auto incrementing pointer
 		this->*p++ = (uint16_t)raw[i]*256+(uint16_t)[i+1];
 	}
+	// compare data and last frame
+	for(i=0;i<832;++i)
+	{
+		diff = this->last_out[i]-this->out[i];
+		// if difference between pixels is not zero
+		// add entry to map where index is the pixel index
+		this->events.insert(std::pair<int,EventData>(i,diff>0? 1 : diff<0 ? -1 : 0,i));
+	}
+	// update last frame
+	std::copy(std::begin(this->out), std::end(this->out), std::begin(this->last_out));
 	return 0;
 }
