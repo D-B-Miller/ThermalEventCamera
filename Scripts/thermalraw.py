@@ -67,16 +67,28 @@ class ThermalRaw:
 
     # start thread
     def start():
+        """
+            Start threaded reading of the device
+        """
         self.__stop = False
         self.__thread.start()
 
     # stop thread
     def stop():
+        """
+            Set stop flag for thread and wait for it to finish
+        """
         self.__stop = True
         self.__thread.join()
         
     # read and update output matrix
     def update(self):
+        """
+            Read from device if it's open and update the out and signs
+            array
+
+            The class runs this program in a thread for continuous updates
+        """
         # loop while flag is false
         while(not self.__stop):
             # if the device is closed break from loop
