@@ -15,7 +15,12 @@
 #include <algorithm>
 #include <memory>
 #include <unistd.h>
+#include <map>
 #include "/home/pi/mlx90640-library-master/headers/MLX90640_API.h"
+#include "/home/pi/mlx90640-library-master/headers/MLX90640_I2C_Driver.h"
+
+#ifndef __TEVENTCAMERA__
+#define __TEVENTCAMERA__
 
 // address of thermal camera on Pi
 #define MLX_I2C_ADDR 0x33
@@ -36,13 +41,13 @@
 // structure for event data on each pixel
 struct EventData{
 	signed short sign = 0; // sign of change, +1 for positive, -1 for negative and 0 for no change
-	static std::chrono::time_point<std::chrono::system_clock> time; // timestamp the change was logged
-	
+	std::chrono::time_point<std::chrono::system_clock> time; // timestamp the change was logged
+
 	// blank constructor
 	EventData(){
 		this->time  = std::chrono::system_clock::now(); // set timestamp
 	}
-	// constructor passing 
+	// constructor passing
 	EventData(unsigned short sig){
 		this->time  = std::chrono::system_clock::now(); // set timestamp
 		this->sign = sig; // set sign change
@@ -52,29 +57,28 @@ struct EventData{
 // class for treating an MLX90640 thermal camera as an Event Camera
 class ThermalEventCamera {
 	public:
-		ThermalEventCamera(); // blank constructur, def 16 fps
 		ThermalEventCamera(int fps); // constructor with fps argument
 		~ThermalEventCamera();
-		
 		signed short out[832]; // output array of changes
-		
 		void read(); // read from the I2C buff
 		void update(); // update the output matrix
 		int start(); // start threaded reading
 		int stop(); // stop threaded reading
-		int fps(); // function to get set refresh FPS
+		int getFps(); // function to get set refresh FPS
 	private:
-		void threadRead(); // function passed to readThread. Loops ThermalEventCamera::read
-		void threadUpdate(); // function passed to updateThread. Loops update
-	
+		int threadRead(); // function passed to readThread. Loops ThermalEventCamera::read
+		int threadUpdate(); // function passed to updateThread. Loops update
+
 		bool queueReady = false; // flag set by read thread to inidcate that a frame has been processed
-		static uint16_t data[834]; // raw data read from I2C bus
-		static uint16_t last_frame[832]; // last frame read
-		static uint16_t frame[832]; // current frame
+		uint16_t data[834]; // raw data read from I2C bus
+		uint16_t last_frame[832]; // last frame read
+		uint16_t frame[832]; // current frame
+		uint16_t eeMLX90640[832];
 		paramsMLX90640 mlx90640; // camera parameters
 		std::map<int,EventData> events; // map containing the change data
 		int fps; // fps set for camera device
-		std::future<void> readThread; // thread for asynchronous reading
-		std::future<void> updateThread; // thread for updating the output
+		std::future<int> readThread; // thread for asynchronous reading
+		std::future<int> updateThread; // thread for updating the output
 		bool stopThread=false; // flag to stop the thread from running
 };
+#endif

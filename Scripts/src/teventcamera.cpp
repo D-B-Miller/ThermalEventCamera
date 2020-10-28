@@ -1,17 +1,6 @@
-#include teventcamera.h
-
-ThermalEventCamera::ThermalEventCamera()
-{
-	MLX90640_SetDeviceMode(MLX_I2C_ADDR, 0);
-	MLX90640_SetSubPageRepeat(MLX_I2C_ADDR, 0);
-	MLX90640_SetRefreshRate(MLX_I2C_ADDR, 0b110); // set refresh rate to 32 fps
-	MLX90640_SetChessMode(MLX_I2C_ADDR);
-	MLX90640_DumpEE(MLX_I2C_ADDR, this->eeMLX90640);
-    MLX90640_SetResolution(MLX_I2C_ADDR, 0x03);
-	MLX90640_ExtractParameters(eeMLX90640, &this->mlx90640);
-	// setup i2c interface
-	this->i2c.stop();
-}
+#include "teventcamera.h"
+//#include "/home/pi/mlx90640-library-master/headers/MLX90640_API.h"
+//#include "/home/pi/mlx90640-library-master/headers/MLX90640_I2C_Driver.h"
 
 ThermalEventCamera::ThermalEventCamera(int fps)
 {
@@ -41,14 +30,11 @@ ThermalEventCamera::ThermalEventCamera(int fps)
 		break;
 	default:
 		fprintf(stderr, "Unsupported framerate: %d\n", this->fps);
-		return 1;
     }
 	MLX90640_SetChessMode(MLX_I2C_ADDR);
 	MLX90640_DumpEE(MLX_I2C_ADDR, this->eeMLX90640);
-    MLX90640_SetResolution(MLX_I2C_ADDR, 0x03);
-	MLX90640_ExtractParameters(eeMLX90640, &this->mlx90640);
-	// setup i2c interface
-	this->i2c.stop();
+        MLX90640_SetResolution(MLX_I2C_ADDR, 0x03);
+	MLX90640_ExtractParameters(this->eeMLX90640, &this->mlx90640);
 }
 
 // deconstructor
@@ -58,29 +44,31 @@ ThermalEventCamera::~ThermalEventCamera()
 	this->stopThread = true;
 	// time to wait for threads to finish
 	std::chrono::milliseconds span (100);
-	// wait for read thread to finish 
-	while(this->readThread.wait_for(span)==std:;future_status::timeout);
+	// wait for read thread to finish
+	while(this->readThread.wait_for(span)==std::future_status::timeout);
 	// wait for update thread to finish
 	while(this->updateThread.wait_for(span)==std::future_status::timeout);
 }
 
 // function to get the refresh rate of the device set on creation
-int ThermalEventCamera::fps()
+int ThermalEventCamera::getFps()
 {
 	return this->fps;
 }
 
 // start the threaded I2C read
-void ThermalEventCamera::start(){
+int ThermalEventCamera::start(){
 	this->stopThread = false;
 	// create asynchronous thread to read from I2C bus and populate behaviour
 	this->readThread = std::async(std::launch::async,&ThermalEventCamera::threadRead,this);
 	this->updateThread = std::async(std::launch::async,&ThermalEventCamera::threadUpdate,this);
+	return 0;
 }
 
 // stop the threaded I2C read
-void ThermalEventCamera::stop(){
+int ThermalEventCamera::stop(){
 	this->stopThread = true;
+	return 0;
 }
 
 // single read of I2C buff and find element wise
@@ -94,7 +82,7 @@ void ThermalEventCamera::read(){
 	// check for changes against last frame
 	for(int i=0;i<832;++i)
 	{
-		diff = this->old_frame[i]-this->frame[i];
+		diff = this->last_frame[i]-this->frame[i];
 		// if difference between pixels is not zero
 		// add entry to map where index is the pixel index
 		this->events.insert(std::pair<int,EventData>(i,diff>0? 1 : diff<0 ? -1 : 0));
@@ -105,9 +93,10 @@ void ThermalEventCamera::read(){
 
 // threaded read of I2C buff
 // repeated calls of read so long as stopThreadis false
-void ThermalEventCamera::threadRead(){
+int ThermalEventCamera::threadRead(){
 	while(not this->stopThread)
 		this->read();
+	return 0;
 }
 
 // update the output matrix
@@ -125,8 +114,9 @@ void ThermalEventCamera::update(){
 
 // threaded updated based on current data
 // runs so long as stopThread is True
-void ThermalEventCamera::threadUpdate(){
+int ThermalEventCamera::threadUpdate(){
 	while(not this->stopThread)
 		this->update();
+	return 0;
 }
 

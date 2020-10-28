@@ -64,7 +64,7 @@ int MLX90640_GetDiffData(uint8_t slaveAddr, uint16_t *diffData, uint16_t *refDat
         if(error != 0)
         {
             return error;
-        }    
+        }
         dataReady = statusRegister & 0x0008;
 
 	auto t_end = std::chrono::system_clock::now();
@@ -73,7 +73,7 @@ int MLX90640_GetDiffData(uint8_t slaveAddr, uint16_t *diffData, uint16_t *refDat
 		printf("frameData timeout error waiting for dataReady \n");
 		return -1;
 	}
-    } 
+    }
 
     while(dataReady != 0 && cnt < 5)
     {
@@ -83,7 +83,7 @@ int MLX90640_GetDiffData(uint8_t slaveAddr, uint16_t *diffData, uint16_t *refDat
             return error;
         }
 
-        error = MLX90640_I2CRead(slaveAddr, 0x0400, 832, frameData); 
+        error = MLX90640_I2CRead(slaveAddr, 0x0400, 832, frameData);
         if(error != 0)
         {
             printf("frameData read error \n");
@@ -123,13 +123,10 @@ int MLX90640_GetDiffData(uint8_t slaveAddr, uint16_t *diffData, uint16_t *refDat
 }
 
 int main(int argc, char *argv[]){
-    static uint16_t eeMLX90640[832], old_frame[832];
-    uint16_t frame[834];
-    uint16_t diff[832];
-    int i=0,ret=0;
-    // flag for indicating if an error occurred
-    // used with try catch so the file can be closed afterwards
-    bool errorFlag=false;
+    static uint16_t eeMLX90640[832]; // used in getting parameters
+    static uint16_t old_frame[832]; // previous frame, used in calculating difference
+    uint16_t diff[832]; // difference between new data and old_frame
+    int ret = 0;
     // register signal handler for keyboard interrupt
     // on interrupt a global variable is decremented
     signal(SIGINT,keyboard_interrupt);
@@ -138,8 +135,8 @@ int main(int argc, char *argv[]){
     MLX90640_SetDeviceMode(MLX_I2C_ADDR, 0);
     MLX90640_SetSubPageRepeat(MLX_I2C_ADDR, 0);
     // set refresh rate of the camera to 32 fps
-	// 64 fps generates some issues
-	MLX90640_SetRefreshRate(MLX_I2C_ADDR, 0b110);
+    // 64 fps generates some issues
+    MLX90640_SetRefreshRate(MLX_I2C_ADDR, 0b110);
     MLX90640_SetChessMode(MLX_I2C_ADDR);
     // parameters structure for camera
     paramsMLX90640 mlx90640;
