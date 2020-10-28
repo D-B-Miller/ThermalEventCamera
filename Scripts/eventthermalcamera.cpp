@@ -20,7 +20,7 @@
 #include <memory>
 #include <unistd.h>
 #include "/home/pi/mlx90640-library-master/headers/MLX90640_API.h"
-
+#include "/home/pi/mlx90640-library-master/headers/MLX90640_I2C_Driver.h"
 #define MLX_I2C_ADDR 0x33
 
 #define IMAGE_SCALE 5
@@ -49,7 +49,7 @@ int MLX90640_GetDiffData(uint8_t slaveAddr, uint16_t *diffData, uint16_t *refDat
 {
     static uint16_t ee[832];
     uint16_t frameArr[834];
-    uint16_t* frameData = &frameArr;
+    uint16_t* frameData = frameArr;
     uint16_t dataReady = 1;
     uint16_t controlRegister1;
     uint16_t statusRegister;
@@ -113,14 +113,13 @@ int MLX90640_GetDiffData(uint8_t slaveAddr, uint16_t *diffData, uint16_t *refDat
     {
         return error;
     }
-	// interpolate outliers
-	MLX90640_InterpolateOutliers(frameArr, ee)
+    // interpolate outliers
+    MLX90640_InterpolateOutliers(frameArr, ee);
     // find difference between ee and refData
     // updates diffData
     for(int i=0;i<832;++i)
 	diffData[i] = (uint16_t)std::abs(frameData - refData);
-	
-    return diffData[831];    
+    return diffData[831];
 }
 
 int main(int argc, char *argv[]){
@@ -150,9 +149,11 @@ int main(int argc, char *argv[]){
     // get parameters
     MLX90640_ExtractParameters(eeMLX90640, &mlx90640);
     // main reading loop
+    std::cout << "starting main loop" << std::endl;
     while(1){
 		// check for difference between the new and old frame
 		ret = MLX90640_GetDiffData(MLX_I2C_ADDR,diff,old_frame);
+		std::cout << ret << std::endl;
 		// check keyboard interrupt flag
 		// if not set, break from loop
 		if(key_inter==1){
