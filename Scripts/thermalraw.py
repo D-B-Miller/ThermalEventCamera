@@ -31,7 +31,7 @@ class ThermalRaw:
     """
         Class for reading raw data from an MLX90640 device connected to
         the Raspberry Pi I2C pins, specifically the device /dev/i2c-1
-    """    
+    """
     def __init__(self):
         """
             ThermalRaw constructor. Attempts to open a connection with
@@ -54,7 +54,7 @@ class ThermalRaw:
         # size to read
         self.__size = 832
         # thread for reading
-        self.__thread = threading.Thread(target=self.update,args=(self,))
+        self.__thread = threading.Thread(target=ThermalRaw.update,args=(self,),daemon=True)
         # start time for reference
         self.__startt = 0
         # output matrix
@@ -81,7 +81,7 @@ class ThermalRaw:
             self.dev.close()
 
     # start thread
-    def start():
+    def start(self):
         """
             Start threaded reading of the device
         """
@@ -89,13 +89,12 @@ class ThermalRaw:
         self.__thread.start()
 
     # stop thread
-    def stop():
+    def stop(self):
         """
             Set stop flag for thread and wait for it to finish
         """
         self.__stop = True
         self.__thread.join()
-        
     # read and update output matrix
     def update(self):
         """
