@@ -31,7 +31,6 @@ class EventData:
 
 class ThermalPig:
 	def __init__(self,start_daemon=True):
-                # 
 		self.pi = pigpio.pi()
 		if not self.pi.connected:
 			print("failed to get pi")
@@ -58,35 +57,29 @@ class ThermalPig:
 		self.__stop = False
         # overloaded subtraction operator to handle bytearrays
 	def __sub__(a : bytearray,b : bytearray):
-            if len(a) != len(b):
-                raise ValueError("Cannot subtract arrays of two different lengths!")
-            else:
-                return bytearray([aa-bb for aa,bb in zip(a,b)])
+		if len(a) != len(b):
+			raise ValueError("Cannot subtract arrays of two different lengths!")
+		else:
+			return bytearray([aa-bb for aa,bb in zip(a,b)])
 
 	def start(self):
-            self.__stop = False
-            self.__thread.start()
+		self.__stop = False
+		self.__thread.start()
 
-        def stop(self):
-            self.__stop = True
-            self.__thread.join(5.0)
+	def stop(self):
+		self.__stop = True
+		self.__thread.join(5.0)
 
-        def update(self):
-            while not self.__stop:
-                try:
-                    data = self.pi.i2c_read_device(self.__h,1664)
-                    if self.__last is None:
-                        continue
-                    else:
-                        diff = data - self.__last
-                        # unpack to 
-
-        def __getattr__(self,*args):
-                return self.pi.__getattr__(*args)
-
+	def update(self):
+		while not self.__stop:
+			data = self.pi.i2c_read_device(self.__h,1664)
+			if self.__last is None:
+				continue
+			else:
+				diff = data - self.__last
+	def __getattr__(self,*args):
+		return self.pi.__getattr__(*args)
 	def __enter__(self):
-                return self
-
-        def __exit__(self):
-                self.pi.close()
-
+		return self
+	def __exit__(self):
+		self.pi.close()
