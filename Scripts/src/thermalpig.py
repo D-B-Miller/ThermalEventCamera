@@ -6,7 +6,7 @@ from datetime import time as timestruct
 from datetime import datetime
 import dataclasses
 import struct
-from subprocess import call
+import subprocess
 
 # structure for the event data
 # holds the sign of the change and the time of update
@@ -31,24 +31,32 @@ class EventData:
         self.ut = datetime.now().time()
 
 class ThermalPig:
-	def __init__(self,start_daemon=True):
-		self.pi = pigpio.pi()
+	def __init__(self,**kwargs):
+		if 'start_daemon' in kwargs:
+			# if start_daemon flag is set
+			if kwargs['start_daemon']:
+				# check to see if a daemon has been started
+				# if so kill it
+				if ThermalPig.check_daemon():
+					out = subprocess.run(['sudo','killall','pigpiod'],capture_output=True)
+					print(f"daemon kill -> {out.stdout},{out.stderr}")
+				# start new daemon
+				out = subprocess.run(['sudo','pigpiod'],capture_output=True)
+				print(f"daemon start -> {out.stdout}, {out.stderr}")
+		# get local pi
+		self.pi  = pigpio.pi()
+		# if connected
 		if not self.pi.connected:
-			print("failed to get pi")
-			if start_daemon:
-				print("starting pigpiod daemon")
-				call(['sudo','pigpiod'],shell=True)
-				self.pi  = pigpio.pi()
-				if not self.pi.connected:
-					print("failed to get pi after creating daemon. check host name")
-					return
+			print("failed to get pi after creating daemon. check host name")
+			return
 		else:
 			# open i2c-1 at address 0x33
 			self.__h = self.pi.i2c_open(1,0x33)
+			print(f"i2c handle : {self.__h}")
 			self.__last = None
 			# perform a test read
 			try:
-				self.__last = self.pi.i2c_read_device(self.__h,1664)
+				self.__last = self.pi.i2c_read_device(self.__h,1664)[1]
 			except BaseException:
 				print("Unexpected error during test read ",sys.exc_info()[0])
 		# setup thread
@@ -57,12 +65,12 @@ class ThermalPig:
 		self.out = [EventData()]*832
 		# stop flag
 		self.__stop = False
-        # overloaded subtraction operator to handle bytearrays
-	def __sub__(a : bytearray,b : bytearray):
-		if len(a) != len(b):
-			raise ValueError("Cannot subtract arrays of two different lengths!")
-		else:
-			return bytearray([aa-bb for aa,bb in zip(a,b)])
+	def __del__(self):
+		# kill pig daemon
+		subprocess.run(['sudo','killall','pigpiod'])
+		# stop thread
+		if self.__thread.is_alive():
+			self.stop()
 	# start update thread
 	def start(self):
 		self.__stop = False
@@ -73,16 +81,18 @@ class ThermalPig:
 		self.__thread.join(5.0)
 	# thread wrapper for update function
 	def update_wrapper(self):
+		if not self.pi.connected:
+			print("Not connected to Pi. Exiting thread early")
+			return
 		while not self.__stop:
 			update()
 	# update difference array
 	def update(self):
-		data = self.pi.i2c_read_device(self.__h,1664)
+		data = self.pi.i2c_read_device(self.__h,1664)[1]
+		data = [bb for bb in data]
 		if self.__last is not None:
-			diff = data - self.__last
-	# redirect get attr calls towards the pigpio.pi  class
-	def __getattr__(self,*args):
-		return self.pi.__getattr__(*args)
+			return [d-l for d,l in zip(data,self.__last)]
+		self.__last = list(data)
 	# with enter behaviour
 	def __enter__(self):
 		return self
