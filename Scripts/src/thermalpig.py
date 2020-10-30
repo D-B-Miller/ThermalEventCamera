@@ -6,6 +6,7 @@ from datetime import time as timestruct
 from datetime import datetime
 import dataclasses
 import struct
+from subprocess import call
 
 # structure for the event data
 # holds the sign of the change and the time of update
@@ -36,23 +37,24 @@ class ThermalPig:
 			print("failed to get pi")
 			if start_daemon:
 				print("starting pigpiod daemon")
-				os.system('sudo pigpiod')
+				call(['sudo','pigpiod'],shell=True)
 				self.pi  = pigpio.pi()
 				if not self.pi.connected:
 					print("failed to get pi after creating daemon. check host name")
 					return
 		else:
+			# open i2c-1 at address 0x33
 			self.__h = self.pi.i2c_open(1,0x33)
+			self.__last = None
 			# perform a test read
 			try:
-				self.pi.i2c_read_device(self.__h,1)
+				self.__last = self.pi.i2c_read_device(self.__h,1664)
 			except BaseException:
 				print("Unexpected error during test read ",sys.exc_info()[0])
 		# setup thread
-		self.__thread = threading.Thread(target=ThermalPig.update,args=(self,),daemon=True)
+		self.__thread = threading.Thread(target=ThermalPig.update_wrapper,args=(self,),daemon=True)
 		# data matrices
 		self.out = [EventData()]*832
-		self.__last = None
 		# stop flag
 		self.__stop = False
         # overloaded subtraction operator to handle bytearrays
@@ -61,25 +63,45 @@ class ThermalPig:
 			raise ValueError("Cannot subtract arrays of two different lengths!")
 		else:
 			return bytearray([aa-bb for aa,bb in zip(a,b)])
-
+	# start update thread
 	def start(self):
 		self.__stop = False
 		self.__thread.start()
-
+	# stop thread with 5 sec timeout on join command
 	def stop(self):
 		self.__stop = True
 		self.__thread.join(5.0)
-
-	def update(self):
+	# thread wrapper for update function
+	def update_wrapper(self):
 		while not self.__stop:
-			data = self.pi.i2c_read_device(self.__h,1664)
-			if self.__last is None:
-				continue
-			else:
-				diff = data - self.__last
+			update()
+	# update difference array
+	def update(self):
+		data = self.pi.i2c_read_device(self.__h,1664)
+		if self.__last is not None:
+			diff = data - self.__last
+	# redirect get attr calls towards the pigpio.pi  class
 	def __getattr__(self,*args):
 		return self.pi.__getattr__(*args)
+	# with enter behaviour
 	def __enter__(self):
 		return self
+	# with exit behaviour
 	def __exit__(self):
+		# close device connection
 		self.pi.close()
+		# kill pig daemons
+		subprocess.run(['sudo','killall','pigpiod'])
+	def check_daemon():
+		# call to get ids of pig daemons
+		tt = subprocess.run(['sudo','pigs','t'],capture_output=True)
+		# if running, it returns a number followed by a newline
+		# remove new line
+		tt = tt.strip('\n')
+		# attempt to convert number to an integer
+		# if it fails then there are no daemons
+		try:
+			int(tt.stdout)
+			return 1
+		except ValueError:
+			return 0
