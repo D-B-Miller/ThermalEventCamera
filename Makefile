@@ -30,8 +30,8 @@ $(examples_output) : CXXFLAGS+=-I$(MLX_DIR)  -std=c++17
 $(BUILD_DIR)mlxexample: $(SRC_DIR)mlxexample.o $(MLX_DIR)libMLX90640_API.a
 	$(CXX) -L/home/pi/mlx90640-library-master $^ -o $@ $(I2C_LIBS)
 
-$(BUILD_DIR)tevent_example: $(HEAD_DIR)teventcamera.cpp $(SRC_DIR)tevent_example.o $(MLX_DIR)libMLX90640_API.a
-	$(CXX) -L/home/pi/mlx90640-library-master -IScripts/src/ $^ -o $@ $(I2C_LIBS)
+$(BUILD_DIR)tevent_example: $(SRC_DIR)tevent_example.o $(MLX_DIR)libMLX90640_API.a
+	$(CXX) -lpthread -I$(SRC_DIR) -L/home/pi/mlx90640-library-master $^ -o $@ $(I2C_LIBS)
 
 clean:
 	rm -f $(examples_output)
