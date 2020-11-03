@@ -1,6 +1,4 @@
 #include "teventcamera.h"
-//#include "/home/pi/mlx90640-library-master/headers/MLX90640_API.h"
-//#include "/home/pi/mlx90640-library-master/headers/MLX90640_I2C_Driver.h"
 
 ThermalEventCamera::ThermalEventCamera(int fps)
 {
@@ -30,7 +28,7 @@ ThermalEventCamera::ThermalEventCamera(int fps)
 		break;
 	default:
 		fprintf(stderr, "Unsupported framerate: %d\n", this->fps);
-    }
+	}
 	MLX90640_SetChessMode(MLX_I2C_ADDR);
 	MLX90640_DumpEE(MLX_I2C_ADDR, this->eeMLX90640);
         MLX90640_SetResolution(MLX_I2C_ADDR, 0x03);
