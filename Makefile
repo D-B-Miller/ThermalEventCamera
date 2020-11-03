@@ -1,13 +1,14 @@
 #I2C_MODE = LINUX
 I2C_LIBS = 
 #I2C_LIBS = -lbcm2835
-SRC_DIR = Scripts/examples/
+EXP_DIR = Scripts/examples/
+SRC_DIR = Scripts/src/
 HEAD_DIR = Scripts/src/
 BUILD_DIR = Scripts/bin/
 MLX_DIR = /home/pi/mlx90640-library-master/
 
-examples = mlxexample tevent_example
-examples_objects = $(addsuffix .o,$(addprefix $(SRC_DIR), $(examples))))
+examples = eventthermalcamera
+examples_objects = $(addsuffix .o,$(addprefix $(EXP_DIR), $(examples))))
 examples_output = $(addprefix $(BUILD_DIR), $(examples))
 
 ifeq ($(PREFIX),)
@@ -22,12 +23,12 @@ all: examples
 
 examples: $(examples_output)
 
-$(examples_objects) : CXXFLAGS+=-std=c++17
+$(examples_objects) : CXXFLAGS+=-std=c++17 -Wall -O2
 
-$(examples_output) : CXXFLAGS+=-I$(MLX_DIR)  -std=c++17
+$(examples_output) : CXXFLAGS+=-I$(MLX_DIR) -std=c++17 -Wall -O2
 
 
-$(BUILD_DIR)mlxexample: $(SRC_DIR)mlxexample.o $(MLX_DIR)libMLX90640_API.a
+$(BUILD_DIR)eventthermalcamera: $(EXP_DIR)eventthermalcamera.o $(MLX_DIR)libMLX90640_API.a
 	$(CXX) -L/home/pi/mlx90640-library-master $^ -o $@ $(I2C_LIBS)
 
 $(BUILD_DIR)tevent_example: $(SRC_DIR)tevent_example.o $(MLX_DIR)libMLX90640_API.a
@@ -35,4 +36,4 @@ $(BUILD_DIR)tevent_example: $(SRC_DIR)tevent_example.o $(MLX_DIR)libMLX90640_API
 
 clean:
 	rm -f $(examples_output)
-	rm -f $(SRC_DIR)*.o
+	rm -f $(EXP_DIR)*.o
