@@ -16,8 +16,8 @@
 #include <memory>
 #include <unistd.h>
 #include <map>
-#include "/home/pi/mlx90640-library-master/headers/MLX90640_API.h"
-#include "/home/pi/mlx90640-library-master/headers/MLX90640_I2C_Driver.h"
+#include "headers/MLX90640_API.h"
+#include "headers/MLX90640_I2C_Driver.h"
 
 #ifndef __TEVENTCAMERA__
 #define __TEVENTCAMERA__
