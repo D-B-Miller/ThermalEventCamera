@@ -141,6 +141,60 @@ uint16_t MLX90640_GetDiffFrame(uint8_t slaveAddr, uint16_t *diffData, uint16_t *
 	return diffData[833];
 }
 
+void MLX90640_GetDiffFloat(uint8_t slaveAdr, uint16_t *diffData, uint16_t *refData, paramsMLX90640 *pp)
+{
+	uint16_t frame[834];
+	float eTa = 0.0;
+	static float mlx90640To[768];
+
+	MLX90640_GetFrameData(slaveAdr,frame);
+
+	for(int i=0;i<834;++i)
+		diffData[i] = frame[i] - refData[i];
+
+	eTa = MLX90640_GetTa(frame,pp);
+
+	MLX90640_CalculateTo(diffData, pp, 1.0, eTa, mlx90640To);
+	MLX90640_BadPixelsCorrection(pp->brokenPixels, mlx90640To, 1, pp);
+	MLX90640_BadPixelsCorrection(pp->outlierPixels, mlx90640To, 1, pp);
+
+	// get min max values
+	//std::cout << "diff max max" << *std::max_element(std::begin(mlx90640To),std::end(mlx90640To))
+		 //<< "diff float min " << *std::min_element(std::begin(mlx90640To),std::end(mlx90640To))
+		//<< std::endl;
+	for(int x = 0; x < 32; x++){
+            for(int y = 0; y < 24; y++){
+                //std::cout << image[32 * y + x] << ",";
+                float val = mlx90640To[32 * (23-y) + x];
+                if(val > 99.99) val = 99.99;
+                if(val > 32.0){
+                    printf(ANSI_COLOR_MAGENTA FMT_STRING ANSI_COLOR_RESET, val);
+                }
+                else if(val > 29.0){
+                    printf(ANSI_COLOR_RED FMT_STRING ANSI_COLOR_RESET, val);
+                }
+                else if (val > 26.0){
+                    printf(ANSI_COLOR_YELLOW FMT_STRING ANSI_COLOR_YELLOW, val);
+                }
+                else if ( val > 20.0 ){
+                    printf(ANSI_COLOR_NONE FMT_STRING ANSI_COLOR_RESET, val);
+                }
+                else if (val > 17.0) {
+                    printf(ANSI_COLOR_GREEN FMT_STRING ANSI_COLOR_RESET, val);
+                }
+                else if (val > 10.0) {
+                    printf(ANSI_COLOR_CYAN FMT_STRING ANSI_COLOR_RESET, val);
+                }
+                else {
+                    printf(ANSI_COLOR_BLUE FMT_STRING ANSI_COLOR_RESET, val);
+                }
+            }
+            std::cout << std::endl;
+        }
+        //std::this_thread::sleep_for(std::chrono::milliseconds(20));
+        printf("\x1b[33A");
+}
+
 void printColors(uint16_t *diffData,float eTa,paramsMLX90640 *pp)
 {
 	static float mlx90640To[768];
@@ -219,7 +273,8 @@ int main(int argc, char *argv[]){
 		//ret = MLX90640_GetDiffData(MLX_I2C_ADDR,diff,old_frame);
 		//std::cout << ret << std::endl;
 		//std::cout << "getting diff data" << std::endl;
-		uret = MLX90640_GetDiffFrame(MLX_I2C_ADDR,diffFrame,oframe);
+		//uret = MLX90640_GetDiffFrame(MLX_I2C_ADDR,diffFrame,oframe);
+		MLX90640_GetDiffFloat(MLX_I2C_ADDR,diffFrame,oframe,&mlx90640);
 		//std::cout << uret << std::endl;
 		//std::cout << "max " << *std::max_element(std::begin(diffFrame),std::end(diffFrame))
 		//	 << " min " << *std::min_element(std::begin(diffFrame),std::end(diffFrame)) << std::endl;
