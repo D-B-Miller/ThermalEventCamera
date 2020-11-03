@@ -31,7 +31,7 @@ $(examples_output) : CXXFLAGS+=-I$(MLX_DIR) -std=c++17 -Wall -O2
 $(BUILD_DIR)eventthermalcamera: $(EXP_DIR)eventthermalcamera.o $(MLX_DIR)libMLX90640_API.a
 	$(CXX) -L/home/pi/mlx90640-library-master $^ -o $@ $(I2C_LIBS)
 
-$(BUILD_DIR)tevent_example: $(SRC_DIR)tevent_example.o $(MLX_DIR)libMLX90640_API.a
+$(BUILD_DIR)tevent_example: $(SRC_DIR)teventcamera.o $(EXP_DIR)tevent_example.o $(MLX_DIR)libMLX90640_API.a
 	$(CXX) -lpthread -I$(SRC_DIR) -L/home/pi/mlx90640-library-master $^ -o $@ $(I2C_LIBS)
 
 clean:
