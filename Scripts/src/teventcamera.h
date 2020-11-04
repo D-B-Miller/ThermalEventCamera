@@ -68,26 +68,28 @@ struct EventData{
 // class for treating an MLX90640 thermal camera as an Event Camera
 class ThermalEventCamera {
 	public:
-		ThermalEventCamera(int fps); // constructor with fps argument
-		~ThermalEventCamera();
-		signed short out[832]; // output array of changes
+		signed short out[832]; // output array of sign changes
 
+		ThermalEventCamera(int fps); // constructor with fps argument
+		~ThermalEventCamera(); // deconstructor
+		// set print colors
 		void setNegColor(const char* neg);
 		void setPosColor(const char* pos);
 		void setZeroColor(const char* neut);
+		// get print colors
 		const char* getNegColor(){return (const char*)this->ansi_neg_color;};
 		const char* getPosColor(){return (const char*)this->ansi_pos_color;};
 		const char* getZeroColor(){return (const char*)this->ansi_zero_color;};
 		void read(); // read from the I2C buff
 		void update(); // update the output matrix
-		int start(); // start threaded reading
-		int stop(); // stop threaded reading
+		void start(); // start threaded reading
+		void stop(); // stop threaded reading
 		int getFps(); // function to get set refresh FPS
 		void printSigns(); // print out matrix as colors in the console
 	private:
-		int threadRead(); // function passed to readThread. Loops ThermalEventCamera::read
-		int threadUpdate(); // function passed to updateThread. Loops update
-
+		int wrapperRead(); // function passed to readThread. Loops ThermalEventCamera::read
+		int wrapperUpdate(); // function passed to updateThread. Loops update
+		// colors used in printSigns
 		char* ansi_neg_color = (char*)(ANSI_COLOR_RED FMT_STRING ANSI_COLOR_RESET);
 		char* ansi_pos_color = (char*)(ANSI_COLOR_CYAN FMT_STRING ANSI_COLOR_RESET);
 		char* ansi_zero_color = (char*)(ANSI_COLOR_NONE FMT_STRING ANSI_COLOR_RESET);
@@ -102,6 +104,5 @@ class ThermalEventCamera {
 		std::future<int> readThread; // thread for asynchronous reading
 		std::future<int> updateThread; // thread for updating the output
 		bool stopThread=false; // flag to stop the thread from running
-		const char* fmt_string = "\u2588\u2588"; // fmt string for printing colors
 };
 #endif
