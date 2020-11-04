@@ -137,7 +137,7 @@ void ThermalEventCamera::start(){
 	this->stopThread = false;
 	if(this->fps == 0){
 		std::cerr << "Frame rate has not been set! Cannot start threads!" << std::endl;
-		return
+		return;
 	}
 	// create asynchronous thread to read from I2C bus and populate behaviour
 	this->readThread = std::async(std::launch::async,&ThermalEventCamera::wrapperRead,this);
