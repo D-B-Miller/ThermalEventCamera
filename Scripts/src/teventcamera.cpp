@@ -74,18 +74,16 @@ int ThermalEventCamera::getFps()
 }
 
 // start the threaded I2C read
-int ThermalEventCamera::start(){
+void ThermalEventCamera::start(){
 	this->stopThread = false;
 	// create asynchronous thread to read from I2C bus and populate behaviour
-	this->readThread = std::async(std::launch::async,&ThermalEventCamera::threadRead,this);
-	this->updateThread = std::async(std::launch::async,&ThermalEventCamera::threadUpdate,this);
-	return 0;
+	this->readThread = std::async(std::launch::async,&ThermalEventCamera::wrapperRead,this);
+	this->updateThread = std::async(std::launch::async,&ThermalEventCamera::wrapperUpdate,this);
 }
 
 // stop the threaded I2C read
-int ThermalEventCamera::stop(){
+void ThermalEventCamera::stop(){
 	this->stopThread = true;
-	return 0;
 }
 
 // single read of I2C buff and find element wise
@@ -96,13 +94,15 @@ void ThermalEventCamera::read(){
 	MLX90640_GetFrameData(MLX_I2C_ADDR,this->data);
 	// interpolate outliers to create a valid data frame
 	MLX90640_InterpolateOutliers(this->data, this->frame);
+	uint16_t *fp = this->frame;
+	uint16_t *lfp = this->last_frame;
 	// check for changes against last frame
-	for(int i=0;i<832;++i)
+	while(*fp)
 	{
-		diff = this->last_frame[i]-this->frame[i];
-		// if difference between pixels is not zero
-		// add entry to map where index is the pixel index
-		this->events.insert(std::pair<int,EventData>(i,diff>0? 1 : diff<0 ? -1 : 0));
+		// update events map
+		this->events.insert(std::pair<int,EventData>(i,*fp>*lfp? 1 : *fp<*lfp ? -1 : 0));
+		fp++;
+		lfp++;
 	}
 	// update last_frame with curent frame
 	std::copy(std::begin(this->frame),std::end(this->frame),std::begin(this->last_frame));
@@ -110,7 +110,7 @@ void ThermalEventCamera::read(){
 
 // threaded read of I2C buff
 // repeated calls of read so long as stopThreadis false
-int ThermalEventCamera::threadRead(){
+int ThermalEventCamera::wrapperRead(){
 	while(not this->stopThread)
 		this->read();
 	return 0;
@@ -131,7 +131,7 @@ void ThermalEventCamera::update(){
 
 // threaded updated based on current data
 // runs so long as stopThread is True
-int ThermalEventCamera::threadUpdate(){
+int ThermalEventCamera::wrapperUpdate(){
 	while(not this->stopThread)
 		this->update();
 	return 0;
@@ -155,8 +155,10 @@ void ThermalEventCamera::printSigns(){
 		}
 		std::cout << std::endl;
 	}
+	printf("\x1b[33A");
 }
 
+// set the color used with printing negative sign to console
 void ThermalEventCamera::setNegColor(const char* neg){
 	char* ll = (char*)neg;
 	// convert string to lowercase
@@ -186,9 +188,101 @@ void ThermalEventCamera::setNegColor(const char* neg){
 	{
 		this->ansi_neg_color = ANSI_COLOR_CYAN FMT_STRING ANSI_COLOR_RESET;
 	}
-	else if(std::strcmp(neg,"blue")==0)
+	else if(std::strcmp(ll,"blue")==0)
 	{
 		this->ansi_neg_color = ANSI_COLOR_BLUE FMT_STRING ANSI_COLOR_RESET;
+	}
+	else if(std::strmp(ll,"magneta")==0)
+	{
+		this->ansi_neg_color = ANSI_COLOR_MAGENTA FMT_STRING ANSI_COLOR_RESET;
+	}
+	else
+	{
+		std::cerr << "Unsupported color " << ll << std::endl;
+	}
+}
+
+// set the color used with printing positive sign to console
+void ThermalEventCamera::setPosColor(const char* pos){
+	char* ll = (char*)pos;
+	// convert string to lowercase
+	while(*pos){
+		*ll = tolower(*pos);
+		pos++;
+		ll++;
+	}
+	// compare and update negative string
+	if(std::strcmp(ll,"red")==0)
+	{
+		this->ansi_pos_color = ANSI_COLOR_RED FMT_STRING ANSI_COLOR_RESET;
+	}
+	else if(std::strcmp(ll,"yellow")==0)
+	{
+		this->ansi_pos_color = ANSI_COLOR_YELLOW FMT_STRING ANSI_COLOR_YELLOW;
+	}
+	else if(std::strcmp(ll,"none")==0)
+	{
+		this->ansi_pos_color = ANSI_COLOR_NONE FMT_STRING ANSI_COLOR_RESET;
+	}
+	else if(std::strcmp(ll,"green")==0)
+	{
+		this->ansi_pos_color = ANSI_COLOR_GREEN FMT_STRING ANSI_COLOR_RESET;
+	}
+	else if(std::strcmp(ll,"cyan")==0)
+	{
+		this->ansi_pos_color = ANSI_COLOR_CYAN FMT_STRING ANSI_COLOR_RESET;
+	}
+	else if(std::strcmp(ll,"blue")==0)
+	{
+		this->ansi_pos_color = ANSI_COLOR_BLUE FMT_STRING ANSI_COLOR_RESET;
+	}
+	else if(std::strmp(ll,"magneta")==0)
+	{
+		this->ansi_pos_color = ANSI_COLOR_MAGENTA FMT_STRING ANSI_COLOR_RESET;
+	}
+	else
+	{
+		std::cerr << "Unsupported color " << ll << std::endl;
+	}
+}
+
+// set the color used with printing zero\neutral sign to console
+void ThermalEventCamera::setZeroColor(const char* zero){
+	char* ll = (char*)zero;
+	// convert string to lowercase
+	while(*zero)
+		*ll = tolower(*zero);
+		zero++;
+		ll++;
+	}
+	// compare and update negative string
+	if(std::strcmp(ll,"red")==0)
+	{
+		this->ansi_zero_color = ANSI_COLOR_RED FMT_STRING ANSI_COLOR_RESET;
+	}
+	else if(std::strcmp(ll,"yellow")==0)
+	{
+		this->ansi_zero_color = ANSI_COLOR_YELLOW FMT_STRING ANSI_COLOR_YELLOW;
+	}
+	else if(std::strcmp(ll,"none")==0)
+	{
+		this->ansi_zero_color = ANSI_COLOR_NONE FMT_STRING ANSI_COLOR_RESET;
+	}
+	else if(std::strcmp(ll,"green")==0)
+	{
+		this->ansi_zero_color = ANSI_COLOR_GREEN FMT_STRING ANSI_COLOR_RESET;
+	}
+	else if(std::strcmp(ll,"cyan")==0)
+	{
+		this->ansi_zero_color = ANSI_COLOR_CYAN FMT_STRING ANSI_COLOR_RESET;
+	}
+	else if(std::strcmp(ll,"blue")==0)
+	{
+		this->ansi_zero_color = ANSI_COLOR_BLUE FMT_STRING ANSI_COLOR_RESET;
+	}
+	else if(std::strmp(ll,"magneta")==0)
+	{
+		this->ansi_zero_color = ANSI_COLOR_MAGENTA FMT_STRING ANSI_COLOR_RESET;
 	}
 	else
 	{
