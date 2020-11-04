@@ -112,15 +112,11 @@ void ThermalEventCamera::read(){
 	MLX90640_GetFrameData(MLX_I2C_ADDR,this->data);
 	// interpolate outliers to create a valid data frame
 	MLX90640_InterpolateOutliers(this->data, this->frame);
-	uint16_t *fp = this->frame;
-	uint16_t *lfp = this->last_frame;
 	// check for changes against last frame
-	while(*fp)
+	for(int i=0;i<832;++i)
 	{
 		// update events map
-		this->events.insert(std::pair<int,EventData>(i,*fp>*lfp? 1 : *fp<*lfp ? -1 : 0));
-		fp++;
-		lfp++;
+		this->events.insert(std::pair<int,EventData>(i,this->frame[i]>this->last_frame[i]? 1 : this->frame[i]<this->last_frame[i] ? -1 : 0));
 	}
 	// update last_frame with curent frame
 	std::copy(std::begin(this->frame),std::end(this->frame),std::begin(this->last_frame));
@@ -210,7 +206,7 @@ void ThermalEventCamera::setNegColor(const char* neg){
 	{
 		this->ansi_neg_color = ANSI_COLOR_BLUE FMT_STRING ANSI_COLOR_RESET;
 	}
-	else if(std::strmp(ll,"magneta")==0)
+	else if(std::strcmp(ll,"magneta")==0)
 	{
 		this->ansi_neg_color = ANSI_COLOR_MAGENTA FMT_STRING ANSI_COLOR_RESET;
 	}
@@ -254,7 +250,7 @@ void ThermalEventCamera::setPosColor(const char* pos){
 	{
 		this->ansi_pos_color = ANSI_COLOR_BLUE FMT_STRING ANSI_COLOR_RESET;
 	}
-	else if(std::strmp(ll,"magneta")==0)
+	else if(std::strcmp(ll,"magneta")==0)
 	{
 		this->ansi_pos_color = ANSI_COLOR_MAGENTA FMT_STRING ANSI_COLOR_RESET;
 	}
@@ -268,7 +264,7 @@ void ThermalEventCamera::setPosColor(const char* pos){
 void ThermalEventCamera::setZeroColor(const char* zero){
 	char* ll = (char*)zero;
 	// convert string to lowercase
-	while(*zero)
+	while(*zero){
 		*ll = tolower(*zero);
 		zero++;
 		ll++;
@@ -298,7 +294,7 @@ void ThermalEventCamera::setZeroColor(const char* zero){
 	{
 		this->ansi_zero_color = ANSI_COLOR_BLUE FMT_STRING ANSI_COLOR_RESET;
 	}
-	else if(std::strmp(ll,"magneta")==0)
+	else if(std::strcmp(ll,"magneta")==0)
 	{
 		this->ansi_zero_color = ANSI_COLOR_MAGENTA FMT_STRING ANSI_COLOR_RESET;
 	}
