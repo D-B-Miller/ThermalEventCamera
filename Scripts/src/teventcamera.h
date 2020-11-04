@@ -70,6 +70,7 @@ class ThermalEventCamera {
 	public:
 		signed short out[832]; // output array of sign changes
 
+		ThermalEventCamera(); // constructor that sets to 32 fps
 		ThermalEventCamera(int fps); // constructor with fps argument
 		~ThermalEventCamera(); // deconstructor
 		// set print colors
