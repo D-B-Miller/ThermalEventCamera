@@ -85,7 +85,8 @@ class ThermalEventCamera {
 		void update(); // update the output matrix
 		void start(); // start threaded reading
 		void stop(); // stop threaded reading
-		int getFps(); // function to get set refresh FPS
+		int getFps(); // function to get refresh FPS
+		void setFps(int); // function to update refresh FPS
 		void printSigns(); // print out matrix as colors in the console
 	private:
 		int wrapperRead(); // function passed to readThread. Loops ThermalEventCamera::read
