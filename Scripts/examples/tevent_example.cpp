@@ -12,6 +12,7 @@ int main(int argc,char* argv[]){
 		sleep(1);
 		std::cout << '.' << std::endl;
 	}
+	cam.printSigns();
 	std::cout << std::endl;
 	std::cout << "stopping threads and sleeping for 1s" << std::endl;
 	cam.stop();

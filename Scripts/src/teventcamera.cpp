@@ -137,3 +137,61 @@ int ThermalEventCamera::threadUpdate(){
 	return 0;
 }
 
+// function for posting the signs as colours in the console
+// based off the test example in the mlx90640 lib
+void ThermalEventCamera::printSigns(){
+	for(int x=0;x<32;++x){
+		for(int y=0;y<24;++y){
+			signed short val = this->out[32*(23-y) + x];
+			if (val==1){
+				std::cout << this->ansi_pos_color;
+			}
+			else if(val == -1){
+				std::cout << this->ansi_neg_color;
+			}
+			else{
+				std::cout << this->ansi_zero_color;
+			}
+		}
+		std::cout << std::endl;
+	}
+}
+
+void ThermalEventCamera::setNegColor(const char* neg){
+	char* ll = (char*)neg;
+	// convert string to lowercase
+	while(*neg){
+		*ll = tolower(*neg);
+		neg++;
+		ll++;
+	}
+	// compare and update negative string
+	if(std::strcmp(ll,"red")==0)
+	{
+		this->ansi_neg_color = ANSI_COLOR_RED FMT_STRING ANSI_COLOR_RESET;
+	}
+	else if(std::strcmp(ll,"yellow")==0)
+	{
+		this->ansi_neg_color = ANSI_COLOR_YELLOW FMT_STRING ANSI_COLOR_YELLOW;
+	}
+	else if(std::strcmp(ll,"none")==0)
+	{
+		this->ansi_neg_color = ANSI_COLOR_NONE FMT_STRING ANSI_COLOR_RESET;
+	}
+	else if(std::strcmp(ll,"green")==0)
+	{
+		this->ansi_neg_color = ANSI_COLOR_GREEN FMT_STRING ANSI_COLOR_RESET;
+	}
+	else if(std::strcmp(ll,"cyan")==0)
+	{
+		this->ansi_neg_color = ANSI_COLOR_CYAN FMT_STRING ANSI_COLOR_RESET;
+	}
+	else if(std::strcmp(neg,"blue")==0)
+	{
+		this->ansi_neg_color = ANSI_COLOR_BLUE FMT_STRING ANSI_COLOR_RESET;
+	}
+	else
+	{
+		std::cerr << "Unsupported color " << ll << std::endl;
+	}
+}

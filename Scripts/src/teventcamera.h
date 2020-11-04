@@ -27,6 +27,17 @@
 
 #define IMAGE_SCALE 5
 
+#define ANSI_COLOR_RED     "\x1b[31m"
+#define ANSI_COLOR_GREEN   "\x1b[32m"
+#define ANSI_COLOR_YELLOW  "\x1b[33m"
+#define ANSI_COLOR_BLUE    "\x1b[34m"
+#define ANSI_COLOR_MAGENTA "\x1b[35m"
+#define ANSI_COLOR_CYAN    "\x1b[36m"
+#define ANSI_COLOR_NONE    "\x1b[30m"
+#define ANSI_COLOR_RESET   "\x1b[0m"
+
+#define FMT_STRING "\u2588\u2588"
+
 // Valid frame rates are 1, 2, 4, 8, 16, 32 and 64
 // The i2c baudrate is set to 1mhz to support these
 #define FPS 16
@@ -60,15 +71,26 @@ class ThermalEventCamera {
 		ThermalEventCamera(int fps); // constructor with fps argument
 		~ThermalEventCamera();
 		signed short out[832]; // output array of changes
+
+		void setNegColor(const char* neg);
+		void setPosColor(const char* pos);
+		void setZeroColor(const char* neut);
+		const char* getNegColor(){return (const char*)this->ansi_neg_color;};
+		const char* getPosColor(){return (const char*)this->ansi_pos_color;};
+		const char* getZeroColor(){return (const char*)this->ansi_zero_color;};
 		void read(); // read from the I2C buff
 		void update(); // update the output matrix
 		int start(); // start threaded reading
 		int stop(); // stop threaded reading
 		int getFps(); // function to get set refresh FPS
+		void printSigns(); // print out matrix as colors in the console
 	private:
 		int threadRead(); // function passed to readThread. Loops ThermalEventCamera::read
 		int threadUpdate(); // function passed to updateThread. Loops update
 
+		char* ansi_neg_color = (char*)(ANSI_COLOR_RED FMT_STRING ANSI_COLOR_RESET);
+		char* ansi_pos_color = (char*)(ANSI_COLOR_CYAN FMT_STRING ANSI_COLOR_RESET);
+		char* ansi_zero_color = (char*)(ANSI_COLOR_NONE FMT_STRING ANSI_COLOR_RESET);
 		bool queueReady = false; // flag set by read thread to inidcate that a frame has been processed
 		uint16_t data[834]; // raw data read from I2C bus
 		uint16_t last_frame[832]; // last frame read
@@ -80,5 +102,6 @@ class ThermalEventCamera {
 		std::future<int> readThread; // thread for asynchronous reading
 		std::future<int> updateThread; // thread for updating the output
 		bool stopThread=false; // flag to stop the thread from running
+		const char* fmt_string = "\u2588\u2588"; // fmt string for printing colors
 };
 #endif
