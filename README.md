@@ -16,6 +16,27 @@ IEEE Trans. Pattern Anal. Machine Intell. (TPAMI), 2020
  - [bin](Scripts/bin) : All compiled scripts/ binaries and executables
  - [src](Scripts/src) : All source scripts
  - [build](Scripts/build) : All building scripts
+ - [examples](Scripts/examples) : Scripts showing how to use the code in src
+ 
+## Build Instructions
+There is a [Makefile](Makefile) for this repository.
+
+To make everything (currently just builds the examples)
+```
+make all
+```
+
+To make the examples
+```
+make examples
+```
+
+To delete built binaries and .o files
+```
+make clean
+```
+
+**NOTE: To build tevent_example, run [build_teventexample](build_teventexample.sh). The compilation instructions aren't currently in the Makefile**
 
 ## Scripts
  - [teventcamera.h](Scripts/src/teventcamera.h), [teventcamera.cpp](Scripts.teventcamera.cpp) : Threaded class for reading i2C bus of the camera
