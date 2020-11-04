@@ -58,7 +58,7 @@ ThermalEventCamera::~ThermalEventCamera()
 	// wait for update thread to finish
 	if(this->updateThread.valid()){
 		status = this->updateThread.wait_for(span);
-		if(status == std::future_status::read){
+		if(status == std::future_status::ready){
 			std::cout << "update thread stopped" << std::endl;
 		}
 		else if(status == std::future_status::timeout){
