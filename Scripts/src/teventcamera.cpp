@@ -8,28 +8,47 @@ ThermalEventCamera::ThermalEventCamera(int fps)
 	switch(fps){
         case 1:
 		MLX90640_SetRefreshRate(MLX_I2C_ADDR, 0b001);
+		this->fps = 1;
 		break;
 	case 2:
 		MLX90640_SetRefreshRate(MLX_I2C_ADDR, 0b010);
+		this->fps = 2;
 		break;
 	case 4:
 		MLX90640_SetRefreshRate(MLX_I2C_ADDR, 0b011);
+		this->fps = 4;
 		break;
 	case 8:
 		MLX90640_SetRefreshRate(MLX_I2C_ADDR, 0b100);
+		this->fps = 8;
 		break;
 	case 16:
 		MLX90640_SetRefreshRate(MLX_I2C_ADDR, 0b101);
+		this->fps = 16;
 		break;
 	case 32:
 		MLX90640_SetRefreshRate(MLX_I2C_ADDR, 0b110);
+		this->fps = 32;
 		break;
 	case 64:
 		MLX90640_SetRefreshRate(MLX_I2C_ADDR, 0b111);
+		this->fps = 64;
 		break;
 	default:
-		fprintf(stderr, "Unsupported framerate: %d\n", this->fps);
+		std::cerr << "Unsupported framerate: " << std::endl;
 	}
+	MLX90640_SetChessMode(MLX_I2C_ADDR);
+	MLX90640_DumpEE(MLX_I2C_ADDR, this->eeMLX90640);
+        MLX90640_SetResolution(MLX_I2C_ADDR, 0x03);
+	MLX90640_ExtractParameters(this->eeMLX90640, &this->mlx90640);
+}
+
+ThermalEventCamera::ThermalEventCamera()
+{
+	MLX90640_SetDeviceMode(MLX_I2C_ADDR, 0);
+	MLX90640_SetSubPageRepeat(MLX_I2C_ADDR, 0);
+	MLX90640_SetRefreshRate(MLX_I2C_ADDR, 0b110);
+	this->fps = 32;
 	MLX90640_SetChessMode(MLX_I2C_ADDR);
 	MLX90640_DumpEE(MLX_I2C_ADDR, this->eeMLX90640);
         MLX90640_SetResolution(MLX_I2C_ADDR, 0x03);
