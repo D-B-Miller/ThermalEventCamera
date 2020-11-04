@@ -151,8 +151,6 @@ void ThermalEventCamera::stop(){
 
 // single read of I2C buff and find element wise
 void ThermalEventCamera::read(){
-	// element wise difference between pixels
-	uint16_t diff = 0;
 	// get frame data
 	MLX90640_GetFrameData(MLX_I2C_ADDR,this->data);
 	// interpolate outliers to create a valid data frame
