@@ -1,5 +1,4 @@
 #include "teventcamera.h"
-//#include "headers/MLX90640_API.h"
 
 ThermalEventCamera::ThermalEventCamera(int fps)
 {
