@@ -1,5 +1,6 @@
 #include "teventcamera.h"
 
+// constructor accepting FPS argument
 ThermalEventCamera::ThermalEventCamera(int fps)
 {
 	MLX90640_SetDeviceMode(MLX_I2C_ADDR, 0);
@@ -35,6 +36,7 @@ ThermalEventCamera::ThermalEventCamera(int fps)
 		break;
 	default:
 		std::cerr << "Unsupported framerate: " << std::endl;
+		this->fps = 0;
 	}
 	MLX90640_SetChessMode(MLX_I2C_ADDR);
 	MLX90640_DumpEE(MLX_I2C_ADDR, this->eeMLX90640);
@@ -94,6 +96,10 @@ int ThermalEventCamera::getFps()
 // start the threaded I2C read
 void ThermalEventCamera::start(){
 	this->stopThread = false;
+	if(this->fps == 0){
+		std::cerr << "Frame rate has not been set! Cannot start threads!" << std::endl;
+		return
+	}
 	// create asynchronous thread to read from I2C bus and populate behaviour
 	this->readThread = std::async(std::launch::async,&ThermalEventCamera::wrapperRead,this);
 	this->updateThread = std::async(std::launch::async,&ThermalEventCamera::wrapperUpdate,this);
