@@ -43,10 +43,28 @@ ThermalEventCamera::~ThermalEventCamera()
 	this->stopThread = true;
 	// time to wait for threads to finish
 	std::chrono::milliseconds span (100);
+	// status returned by threads
+	std::future_status status;
 	// wait for read thread to finish
-	while(this->readThread.wait_for(span)==std::future_status::timeout);
+	if(this->readThread.valid()){
+		status = this->readThread.wait_for(span);
+		if(status == std::future_status::ready){
+			std::cout << "read thread stopped" << std::endl;
+		}
+		else if(status == std::future_status::timeout){
+			std::cerr << "warning: timeout waiting for read thread to finish" << std::endl;
+		}
+	}
 	// wait for update thread to finish
-	while(this->updateThread.wait_for(span)==std::future_status::timeout);
+	if(this->updateThread.valid()){
+		status = this->updateThread.wait_for(span);
+		if(status == std::future_status::read){
+			std::cout << "update thread stopped" << std::endl;
+		}
+		else if(status == std::future_status::timeout){
+			std::cerr << "warning: timeout whilst waiting for update thread to stop" << std::endl;
+		}
+	}
 }
 
 // function to get the refresh rate of the device set on creation
@@ -74,7 +92,7 @@ int ThermalEventCamera::stop(){
 void ThermalEventCamera::read(){
 	// element wise difference between pixels
 	uint16_t diff = 0;
-	// get frame data 
+	// get frame data
 	MLX90640_GetFrameData(MLX_I2C_ADDR,this->data);
 	// interpolate outliers to create a valid data frame
 	MLX90640_InterpolateOutliers(this->data, this->frame);
@@ -102,7 +120,7 @@ int ThermalEventCamera::threadRead(){
 // clear the current matrix, query the events map for any changes and process any
 void ThermalEventCamera::update(){
 	// clear output matrix
-	std::fill(std::begin(this->out),std::end(this->out),0);
+	//std::fill(std::begin(this->out),std::end(this->out),0);
 	// iterate over map, c++ 17
 	for(auto const& [key,val] : this->events)
 	{	// update non-zero entries of output matrix with sign value
