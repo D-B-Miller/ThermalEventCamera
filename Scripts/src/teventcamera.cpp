@@ -35,7 +35,7 @@ ThermalEventCamera::ThermalEventCamera(int fps)
 		this->fps = 64;
 		break;
 	default:
-		std::cerr << "Unsupported framerate: " << std::endl;
+		std::cerr << "Unsupported framerate: " << fps << std::endl;
 		this->fps = 0;
 	}
 	MLX90640_SetChessMode(MLX_I2C_ADDR);
@@ -44,6 +44,8 @@ ThermalEventCamera::ThermalEventCamera(int fps)
 	MLX90640_ExtractParameters(this->eeMLX90640, &this->mlx90640);
 }
 
+// basic constructor
+// initialised to 32 fps
 ThermalEventCamera::ThermalEventCamera()
 {
 	MLX90640_SetDeviceMode(MLX_I2C_ADDR, 0);
@@ -91,6 +93,43 @@ ThermalEventCamera::~ThermalEventCamera()
 int ThermalEventCamera::getFps()
 {
 	return this->fps;
+}
+
+// function to update refresh rate
+void ThermalEventCamera::setFps(int nfps)
+{
+	switch(nfps){
+        case 1:
+		MLX90640_SetRefreshRate(MLX_I2C_ADDR, 0b001);
+		this->fps = 1;
+		break;
+	case 2:
+		MLX90640_SetRefreshRate(MLX_I2C_ADDR, 0b010);
+		this->fps = 2;
+		break;
+	case 4:
+		MLX90640_SetRefreshRate(MLX_I2C_ADDR, 0b011);
+		this->fps = 4;
+		break;
+	case 8:
+		MLX90640_SetRefreshRate(MLX_I2C_ADDR, 0b100);
+		this->fps = 8;
+		break;
+	case 16:
+		MLX90640_SetRefreshRate(MLX_I2C_ADDR, 0b101);
+		this->fps = 16;
+		break;
+	case 32:
+		MLX90640_SetRefreshRate(MLX_I2C_ADDR, 0b110);
+		this->fps = 32;
+		break;
+	case 64:
+		MLX90640_SetRefreshRate(MLX_I2C_ADDR, 0b111);
+		this->fps = 64;
+		break;
+	default:
+		std::cerr << "Unsupported framerate: " << nfps << std::endl;
+	}
 }
 
 // start the threaded I2C read
