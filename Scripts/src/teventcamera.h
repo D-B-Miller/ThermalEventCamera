@@ -67,7 +67,7 @@ struct EventData{
 // class for treating an MLX90640 thermal camera as an Event Camera
 class ThermalEventCamera {
 	public:
-		signed short out[834]; // output array of sign changes
+		signed short out[834] {0}; // output array of sign changes
 		float emissivity = 1; // emissivity used in temperature conversions
 
 		ThermalEventCamera(); // constructor that sets to 32 fps
