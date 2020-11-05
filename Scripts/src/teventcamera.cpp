@@ -157,7 +157,7 @@ void ThermalEventCamera::read(){
 	for(int i=0;i<834;++i)
 	{	// update events map if there's difference
 		if(this->frame[i]!=this->last_frame[i]){
-			this->events.insert(std::pair<int,EventData>(i,this->frame[i]>this->last_frame[i]? 1 : -1));
+			this->events.insert(std::pair<int,EventData>(i,EventData(this->frame[i]>this->last_frame[i]? 1 : -1)));
 		}
 	}
 	// update last_frame with curent frame
