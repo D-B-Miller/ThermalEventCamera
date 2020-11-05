@@ -15,6 +15,7 @@
 #include <memory>
 #include <unistd.h>
 #include <map>
+#include <math.h>
 #include "headers/MLX90640_API.h"
 #include "headers/MLX90640_I2C_Driver.h"
 
