@@ -152,13 +152,10 @@ void ThermalEventCamera::stop(){
 // single read of I2C buff and find element wise
 void ThermalEventCamera::read(){
 	// get frame data
-	MLX90640_GetFrameData(MLX_I2C_ADDR,this->data);
-	// interpolate outliers to create a valid data frame
-	MLX90640_InterpolateOutliers(this->data, this->frame);
+	MLX90640_GetFrameData(MLX_I2C_ADDR,this->frame);
 	// check for changes against last frame
-	for(int i=0;i<832;++i)
-	{
-		// update events map
+	for(int i=0;i<834;++i)
+	{	// update events map
 		this->events.insert(std::pair<int,EventData>(i,this->frame[i]>this->last_frame[i]? 1 : this->frame[i]<this->last_frame[i] ? -1 : 0));
 	}
 	// update last_frame with curent frame
@@ -196,10 +193,11 @@ int ThermalEventCamera::wrapperUpdate(){
 
 // function for posting the signs as colours in the console
 // based off the test example in the mlx90640 lib
+// prints the array with the exception of the last two entries so it's a rectangular matrix
 void ThermalEventCamera::printSigns(){
 	for(int x=0;x<32;++x){
-		for(int y=0;y<24;++y){
-			signed short val = this->out[32*(23-y) + x];
+		for(int y=0;y<26;++y){
+			signed short val = this->out[32*(26-y) + x];
 			if (val==1){
 				std::cout << this->ansi_pos_color;
 			}
@@ -345,4 +343,47 @@ void ThermalEventCamera::setZeroColor(const char* zero){
 	{
 		std::cerr << "Unsupported color " << ll << std::endl;
 	}
+}
+
+// convert frame to temperature using set emissivity and print as colors
+void ThermalEventCamera::printFrame(){
+	static float mlx90640To[768]; // converted temperature values
+	float eTa = MLX90640_GetTa(this->frame, &this->mlx90640); // estimated environmental temperatures
+	// convert data to temperature
+        MLX90640_CalculateTo(this->frame, &this->mlx90640, this->emissivity, eTa, mlx90640To);
+	// fix bad temperature values
+        MLX90640_BadPixelsCorrection((&mlx90640)->brokenPixels, mlx90640To, 1, &this->mlx90640);
+        MLX90640_BadPixelsCorrection((&mlx90640)->outlierPixels, mlx90640To, 1, &this->mlx90640);
+	// iterate over matrix and print values as colors
+	for(int x = 0; x < 32; x++){
+            for(int y = 0; y < 24; y++){
+                //std::cout << image[32 * y + x] << ",";
+                float val = mlx90640To[32 * (23-y) + x];
+                if(val > 99.99) val = 99.99;
+                if(val > 32.0){
+                    printf(ANSI_COLOR_MAGENTA FMT_STRING ANSI_COLOR_RESET, val);
+                }
+                else if(val > 29.0){
+                    printf(ANSI_COLOR_RED FMT_STRING ANSI_COLOR_RESET, val);
+                }
+                else if (val > 26.0){
+                    printf(ANSI_COLOR_YELLOW FMT_STRING ANSI_COLOR_YELLOW, val);
+                }
+                else if ( val > 20.0 ){
+                    printf(ANSI_COLOR_NONE FMT_STRING ANSI_COLOR_RESET, val);
+                }
+                else if (val > 17.0) {
+                    printf(ANSI_COLOR_GREEN FMT_STRING ANSI_COLOR_RESET, val);
+                }
+                else if (val > 10.0) {
+                    printf(ANSI_COLOR_CYAN FMT_STRING ANSI_COLOR_RESET, val);
+                }
+                else {
+                    printf(ANSI_COLOR_BLUE FMT_STRING ANSI_COLOR_RESET, val);
+                }
+            }
+            std::cout << std::endl;
+        }
+        //std::this_thread::sleep_for(std::chrono::milliseconds(20));
+        printf("\x1b[33A");
 }
