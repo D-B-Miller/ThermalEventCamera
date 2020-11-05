@@ -101,7 +101,7 @@ class ThermalEventCamera {
 		uint16_t last_frame[834]; // last frame read
 		uint16_t eeMLX90640[832];
 		paramsMLX90640 mlx90640; // camera parameters
-		std::map<int,EventData> events; // map containing the change data
+		std::map<size_t,EventData> events; // map containing the change data
 		int fps; // fps set for camera device
 		std::future<int> readThread; // thread for asynchronous reading
 		std::future<int> updateThread; // thread for updating the output
