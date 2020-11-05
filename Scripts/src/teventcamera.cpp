@@ -155,8 +155,8 @@ void ThermalEventCamera::read(){
 	MLX90640_GetFrameData(MLX_I2C_ADDR,this->frame);
 	// check for changes against last frame
 	for(int i=0;i<834;++i)
-	{	// update events map if there's difference
-		if(this->frame[i]!=this->last_frame[i]){
+	{	// calculate log of frame intensity adding +1 to avoid zero-error
+		if(65535*log(this->frame[i]+1)!=65535*log(this->last_frame[i]+1)){
 			this->events.insert(std::pair<int,EventData>(i,EventData(this->frame[i]>this->last_frame[i]? 1 : -1)));
 		}
 	}
