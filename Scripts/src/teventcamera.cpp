@@ -168,7 +168,9 @@ void ThermalEventCamera::read(){
 // repeated calls of read so long as stopThreadis false
 int ThermalEventCamera::wrapperRead(){
 	while(not this->stopThread)
+	{
 		this->read();
+	}
 	return 0;
 }
 
@@ -179,7 +181,9 @@ void ThermalEventCamera::update(){
 	for(auto const& [key,val] : this->events)
 	{	// update non-zero entries of output matrix with sign value
 		if(val.sign!=0)
-			this->out[key] = val.sign;
+		{
+			this->out[(size_t)key] = val.sign;
+		}
 	}
 }
 
@@ -187,7 +191,9 @@ void ThermalEventCamera::update(){
 // runs so long as stopThread is True
 int ThermalEventCamera::wrapperUpdate(){
 	while(not this->stopThread)
+	{
 		this->update();
+	}
 	return 0;
 }
 
@@ -197,7 +203,7 @@ int ThermalEventCamera::wrapperUpdate(){
 void ThermalEventCamera::printSigns(){
 	for(int x=0;x<32;++x){
 		for(int y=0;y<26;++y){
-			signed short val = this->out[32*(26-y) + x];
+			signed short val = this->out[32*(25-y) + x];
 			if (val==1){
 				std::cout << this->ansi_pos_color;
 			}
@@ -356,9 +362,9 @@ void ThermalEventCamera::printFrame(){
         MLX90640_BadPixelsCorrection((&mlx90640)->outlierPixels, mlx90640To, 1, &this->mlx90640);
 	// iterate over matrix and print values as colors
 	for(int x = 0; x < 32; x++){
-            for(int y = 0; y < 24; y++){
+            for(int y = 0; y < 26; y++){
                 //std::cout << image[32 * y + x] << ",";
-                float val = mlx90640To[32 * (23-y) + x];
+                float val = mlx90640To[32 * (25-y) + x];
                 if(val > 99.99) val = 99.99;
                 if(val > 32.0){
                     printf(ANSI_COLOR_MAGENTA FMT_STRING ANSI_COLOR_RESET, val);
