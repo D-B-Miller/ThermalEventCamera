@@ -9,7 +9,6 @@
 #include <errno.h>
 #include <iomanip>
 #include <ctime>
-#include <signal.h>
 #include <linux/if_link.h>
 #include <string.h>
 #include <algorithm>
