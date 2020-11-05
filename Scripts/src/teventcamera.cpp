@@ -219,6 +219,20 @@ void ThermalEventCamera::printSigns(){
 	printf("\x1b[33A");
 }
 
+// function for printing the out matrix as raw values
+void ThermalEventCamera::printSignsRaw()
+{
+	for(int x=0;x<32;++x)
+	{
+		for(int y=0;y<26;++y)
+		{
+			std::cout << this->out[32*(25-y)+x];
+		}
+		std::cout << std::endl;
+	}
+	printf("\x1b[33A");
+}
+
 // set the color used with printing negative sign to console
 void ThermalEventCamera::setNegColor(const char* neg){
 	char* ll = (char*)neg;

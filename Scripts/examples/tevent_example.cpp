@@ -15,7 +15,8 @@ void manual_update(ThermalEventCamera *cc)
 	while(1){
 		cc->read();	 // update frame data
 		cc->update();	 // update sign data
-		cc->printSigns(); // print sings data
+		//cc->printSigns(); // print signs data
+		cc->printSignsRaw();
 	}
 }
 
@@ -67,8 +68,8 @@ int main(int argc,char* argv[]){
 	// initialise camera at 32 fps
 	std::cout << "starting camera..." << std::endl;
 	ThermalEventCamera cam(32);
-	manual_read(&cam);
-	//manual_update(&cam);
+	//manual_read(&cam);
+	manual_update(&cam);
 	//thread_read(&cam);
 	//thread_update(&cam);
 	std::cout << "exiting" << std::endl;
