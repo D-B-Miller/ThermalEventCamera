@@ -69,6 +69,7 @@ struct EventData{
 class ThermalEventCamera {
 	public:
 		signed short out[834]; // output array of sign changes
+		float emissivity = 1; // emissivity used in temperature conversions
 
 		ThermalEventCamera(); // constructor that sets to 32 fps
 		ThermalEventCamera(int fps); // constructor with fps argument
