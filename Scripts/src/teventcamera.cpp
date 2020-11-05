@@ -155,8 +155,10 @@ void ThermalEventCamera::read(){
 	MLX90640_GetFrameData(MLX_I2C_ADDR,this->frame);
 	// check for changes against last frame
 	for(int i=0;i<834;++i)
-	{	// update events map
-		this->events.insert(std::pair<int,EventData>(i,this->frame[i]>this->last_frame[i]? 1 : this->frame[i]<this->last_frame[i] ? -1 : 0));
+	{	// update events map if there's difference
+		if(this->frame[i]!=this->last_frame[i]){
+			this->events.insert(std::pair<int,EventData>(i,this->frame[i]>this->last_frame[i]? 1 : -1));
+		}
 	}
 	// update last_frame with curent frame
 	std::copy(std::begin(this->frame),std::end(this->frame),std::begin(this->last_frame));
@@ -173,8 +175,6 @@ int ThermalEventCamera::wrapperRead(){
 // update the output matrix
 // clear the current matrix, query the events map for any changes and process any
 void ThermalEventCamera::update(){
-	// clear output matrix
-	//std::fill(std::begin(this->out),std::end(this->out),0);
 	// iterate over map, c++ 17
 	for(auto const& [key,val] : this->events)
 	{	// update non-zero entries of output matrix with sign value
