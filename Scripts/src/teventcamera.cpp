@@ -182,7 +182,7 @@ void ThermalEventCamera::update(){
 	{	// update non-zero entries of output matrix with sign value
 		if(val.sign!=0)
 		{
-			this->out[(size_t)key] = val.sign;
+			this->out[key] = val.sign;
 		}
 	}
 }
