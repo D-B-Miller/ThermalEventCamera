@@ -23,7 +23,7 @@ void thread_read(ThermalEventCamera *cc, int tlim)
 {
 	if(tlim<=0){
 		std::cerr << "Time limit has to be >=0!" << std::endl;
-		return
+		return;
 	}
 	// get start time of program
 	auto start_prog = std::chrono::system_clock::now();
@@ -45,7 +45,7 @@ void thread_update(ThermalEventCamera *cc, int tlim)
 {
 	if(tlim<=0){
 		std::cerr << "Time limit has to be >=0!" << std::endl;
-		return
+		return;
 	}
 	// get start time of program
 	auto start_prog = std::chrono::system_clock::now();
