@@ -362,9 +362,9 @@ void ThermalEventCamera::printFrame(){
         MLX90640_BadPixelsCorrection((&mlx90640)->outlierPixels, mlx90640To, 1, &this->mlx90640);
 	// iterate over matrix and print values as colors
 	for(int x = 0; x < 32; x++){
-            for(int y = 0; y < 26; y++){
+            for(int y = 0; y < 24; y++){
                 //std::cout << image[32 * y + x] << ",";
-                float val = mlx90640To[32 * (25-y) + x];
+                float val = mlx90640To[32 * (23-y) + x];
                 if(val > 99.99) val = 99.99;
                 if(val > 32.0){
                     printf(ANSI_COLOR_MAGENTA FMT_STRING ANSI_COLOR_RESET, val);
