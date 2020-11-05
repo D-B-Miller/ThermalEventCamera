@@ -68,7 +68,7 @@ struct EventData{
 // class for treating an MLX90640 thermal camera as an Event Camera
 class ThermalEventCamera {
 	public:
-		signed short out[832]; // output array of sign changes
+		signed short out[834]; // output array of sign changes
 
 		ThermalEventCamera(); // constructor that sets to 32 fps
 		ThermalEventCamera(int fps); // constructor with fps argument
@@ -97,9 +97,8 @@ class ThermalEventCamera {
 		char* ansi_pos_color = (char*)(ANSI_COLOR_CYAN FMT_STRING ANSI_COLOR_RESET);
 		char* ansi_zero_color = (char*)(ANSI_COLOR_NONE FMT_STRING ANSI_COLOR_RESET);
 		bool queueReady = false; // flag set by read thread to inidcate that a frame has been processed
-		uint16_t data[834]; // raw data read from I2C bus
-		uint16_t last_frame[832]; // last frame read
-		uint16_t frame[832]; // current frame
+		uint16_t frame[834]; // raw data read from I2C bus
+		uint16_t last_frame[834]; // last frame read
 		uint16_t eeMLX90640[832];
 		paramsMLX90640 mlx90640; // camera parameters
 		std::map<int,EventData> events; // map containing the change data
