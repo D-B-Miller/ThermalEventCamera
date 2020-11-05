@@ -179,11 +179,8 @@ int ThermalEventCamera::wrapperRead(){
 void ThermalEventCamera::update(){
 	// iterate over map, c++ 17
 	for(auto const& [key,val] : this->events)
-	{	// update non-zero entries of output matrix with sign value
-		if(val.sign!=0)
-		{
-			this->out[key] = val.sign;
-		}
+	{
+		this->out[key] = val.sign;
 	}
 }
 
