@@ -26,7 +26,7 @@ void thread_read(ThermalEventCamera *cc, int tlim)
 		return;
 	}
 	// get start time of program
-	auto start_prog = std::chrono::system_clock::now();
+	auto start = std::chrono::system_clock::now();
 	while(1){
 		// print frame as colors
 		cc->printFrame();
@@ -48,7 +48,7 @@ void thread_update(ThermalEventCamera *cc, int tlim)
 		return;
 	}
 	// get start time of program
-	auto start_prog = std::chrono::system_clock::now();
+	auto start = std::chrono::system_clock::now();
 	while(1){
 		// print frame as colors
 		cc->printSigns();
