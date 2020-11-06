@@ -53,7 +53,7 @@
 // structure for event data on each pixel
 struct EventData{
 	private:
-		std::chrono::time_point<std::chrono::system_clock> time; // timestamp the change was logged
+		std::chrono::time_point<std::chrono::system_clock> ts; // timestamp the change was logged
 	public:
 		signed short sign = 0; // sign of change, +1 for positive, -1 for negative and 0 for no change
 		int idx = 0; // array idx of change, currently 1D idx
@@ -65,7 +65,7 @@ struct EventData{
 			this->idx = ii;// set index
 		}
 		// method to retrieve the timestamp of edit
-		std::chrono::time_point<std::chrono::system_clock> time() const {return this->time};
+		std::chrono::time_point<std::chrono::system_clock> time() const {return this->ts;};
 };
 
 // class for treating an MLX90640 thermal camera as an Event Camera
