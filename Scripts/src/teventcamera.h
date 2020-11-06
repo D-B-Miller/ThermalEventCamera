@@ -60,7 +60,7 @@ struct EventData{
 		EventData(){}; // blank constructor, not time is not set
 		// constructor passing idx and sign
 		EventData(int ii,unsigned short sig){
-			this->time  = std::chrono::system_clock::now(); // set timestamp
+			this->ts  = std::chrono::system_clock::now(); // set timestamp
 			this->sign = sig; // set sign change
 			this->idx = ii;// set index
 		}
