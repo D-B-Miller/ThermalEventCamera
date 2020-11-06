@@ -217,9 +217,6 @@ void ThermalEventCamera::printSigns(){
 			else if(val == -1){
 				std::cout << this->ansi_neg_color;
 			}
-			else{
-				std::cout << this->ansi_zero_color;
-			}
 		}
 		std::cout << std::endl;
 	}
