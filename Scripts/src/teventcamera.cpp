@@ -327,51 +327,6 @@ void ThermalEventCamera::setPosColor(const char* pos){
 		std::cerr << "Unsupported color " << ll << std::endl;
 	}
 }
-
-// set the color used with printing zero\neutral sign to console
-void ThermalEventCamera::setZeroColor(const char* zero){
-	char* ll = (char*)zero;
-	// convert string to lowercase
-	while(*zero){
-		*ll = tolower(*zero);
-		zero++;
-		ll++;
-	}
-	// compare and update negative string
-	if(std::strcmp(ll,"red")==0)
-	{
-		this->ansi_zero_color = ANSI_COLOR_RED FMT_STRING ANSI_COLOR_RESET;
-	}
-	else if(std::strcmp(ll,"yellow")==0)
-	{
-		this->ansi_zero_color = ANSI_COLOR_YELLOW FMT_STRING ANSI_COLOR_YELLOW;
-	}
-	else if(std::strcmp(ll,"none")==0)
-	{
-		this->ansi_zero_color = ANSI_COLOR_NONE FMT_STRING ANSI_COLOR_RESET;
-	}
-	else if(std::strcmp(ll,"green")==0)
-	{
-		this->ansi_zero_color = ANSI_COLOR_GREEN FMT_STRING ANSI_COLOR_RESET;
-	}
-	else if(std::strcmp(ll,"cyan")==0)
-	{
-		this->ansi_zero_color = ANSI_COLOR_CYAN FMT_STRING ANSI_COLOR_RESET;
-	}
-	else if(std::strcmp(ll,"blue")==0)
-	{
-		this->ansi_zero_color = ANSI_COLOR_BLUE FMT_STRING ANSI_COLOR_RESET;
-	}
-	else if(std::strcmp(ll,"magneta")==0)
-	{
-		this->ansi_zero_color = ANSI_COLOR_MAGENTA FMT_STRING ANSI_COLOR_RESET;
-	}
-	else
-	{
-		std::cerr << "Unsupported color " << ll << std::endl;
-	}
-}
-
 // convert frame to temperature using set emissivity and print as colors
 void ThermalEventCamera::printFrame(){
 	static float mlx90640To[768]; // converted temperature values
