@@ -4,8 +4,9 @@
 // recipe from https://codetrips.com/2020/07/26/modern-c-writing-a-thread-safe-queue/
 template<typename T>
 class ThreadSafeQueue {
-	std::queue<T> queue_; // default queue
-	mutable std::mutex mutex_; // mutex to control access
+	private:
+		std::queue<T> queue_; // default queue
+		mutable std::mutex mutex_; // mutex to control access
 
 	public:
 		// leave default constructor the same
