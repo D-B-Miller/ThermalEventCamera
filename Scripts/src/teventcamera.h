@@ -80,11 +80,9 @@ class ThermalEventCamera {
 		// set print colors
 		void setNegColor(const char* neg);
 		void setPosColor(const char* pos);
-		void setZeroColor(const char* neut);
 		// get print colors
 		const char* getNegColor(){return (const char*)this->ansi_neg_color;};
 		const char* getPosColor(){return (const char*)this->ansi_pos_color;};
-		const char* getZeroColor(){return (const char*)this->ansi_zero_color;};
 		void read(); // read from the I2C buff
 		void update(); // update the output matrix
 		void start(); // start threaded reading
@@ -100,7 +98,6 @@ class ThermalEventCamera {
 		// colors used in printSigns
 		char* ansi_neg_color = (char*)(ANSI_COLOR_RED FMT_STRING ANSI_COLOR_RESET);
 		char* ansi_pos_color = (char*)(ANSI_COLOR_CYAN FMT_STRING ANSI_COLOR_RESET);
-		char* ansi_zero_color = (char*)(ANSI_COLOR_NONE FMT_STRING ANSI_COLOR_RESET);
 		uint16_t frame[834]; // raw data read from I2C bus
 		uint16_t last_frame[834]; // last frame read
 		uint16_t eeMLX90640[832]; // used in getting camera parameters
