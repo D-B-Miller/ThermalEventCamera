@@ -92,3 +92,8 @@ The class contains three methods for displaying this signs matrix for debug purp
 The third method [printSignsRaw](Scripts/src/teventcamera.h#L230) prints the raw values of the signs matrix. The idea is the user can see the raw data without having to deal with colors in case there is an issue with the colors or something.
 
 **NOTE: As the frame data and signs matrix are non-rectangular, the print methods iterate over the respective arrays as a 26 x 32 matrix (832 entries) so it can be printed as an "image" in the console**
+
+## Results
+### Manual read and update
+
+![](vids/eventcamera-test-vncviewer-na.gif)
