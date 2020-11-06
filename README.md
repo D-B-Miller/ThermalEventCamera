@@ -79,7 +79,7 @@ struct EventData{
 ```
 The member *sign* is the direction of the change and it set to either -1 or +1 for the negative or positive change respectively. The *idx* member is the 1D index of where this change happened in the read data array. It is 1D as the read array is non-rectangular at 834 bytes so cannot be references as a 2D array. The signs matrix updated by the class is accessible through the *out* member. 
 
-The class contains three methods for displaying this signs matrix for debug purposes. The first method [printFrame](Scripts/src/threadsafequeue.h#L331) prints the most recent data as colours in the terminal. This is based off the [test](https://github.com/pimoroni/mlx90640-library/blob/master/examples/src/test.cpp) in the MLX90640 library. It prints the colors based on the estimated temperature values. The emissivity used in the conversion is by default set to 1 but can be changed through the public attribute *emissivity*. The second method [printSigns](Scripts/src/threadsafequeue.h#L210) prints the *out* matrix of sign values as colors in the terminal. The user can set which colors are used for +1 and -1 using the [setPosColor](Scripts/src/threadsafequeue.h#L288) and [setNegColor](Scripts/src/threadsafequeue.h#L244) methods respectively. Currently supported colors are the following for ease of use:
+The class contains three methods for displaying this signs matrix for debug purposes. The first method [printFrame](Scripts/src/teventcamera.cpp#L331) prints the most recent data as colours in the terminal. This is based off the [test](https://github.com/pimoroni/mlx90640-library/blob/master/examples/src/test.cpp) in the MLX90640 library. It prints the colors based on the estimated temperature values. The emissivity used in the conversion is by default set to 1 but can be changed through the public attribute *emissivity*. The second method [printSigns](Scripts/src/(Scripts/src/teventcamera.h#L210) prints the *out* matrix of sign values as colors in the terminal. The user can set which colors are used for +1 and -1 using the [setPosColor](Scripts/src/teventcamera.h#L288) and [setNegColor](Scripts/src/teventcamera.h#L244) methods respectively. Currently supported colors are the following for ease of use:
 
 - red (default negative)
 - yellow
@@ -89,6 +89,6 @@ The class contains three methods for displaying this signs matrix for debug purp
 - blue 
 - magneta
 
-The third method [printSignsRaw](Scripts/src/threadsafequeue.h#L230) prints the raw values of the signs matrix. The idea is the user can see the raw data without having to deal with colors in case there is an issue with the colors or something.
+The third method [printSignsRaw](Scripts/src/teventcamera.h#L230) prints the raw values of the signs matrix. The idea is the user can see the raw data without having to deal with colors in case there is an issue with the colors or something.
 
 **NOTE: As the frame data and signs matrix are non-rectangular, the print methods iterate over the respective arrays as a 26 x 32 matrix (832 entries) so it can be printed as an "image" in the console**
