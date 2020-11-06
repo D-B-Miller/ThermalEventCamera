@@ -101,10 +101,9 @@ class ThermalEventCamera {
 		char* ansi_neg_color = (char*)(ANSI_COLOR_RED FMT_STRING ANSI_COLOR_RESET);
 		char* ansi_pos_color = (char*)(ANSI_COLOR_CYAN FMT_STRING ANSI_COLOR_RESET);
 		char* ansi_zero_color = (char*)(ANSI_COLOR_NONE FMT_STRING ANSI_COLOR_RESET);
-		bool queueReady = false; // flag set by read thread to inidcate that a frame has been processed
 		uint16_t frame[834]; // raw data read from I2C bus
 		uint16_t last_frame[834]; // last frame read
-		uint16_t eeMLX90640[832];
+		uint16_t eeMLX90640[832]; // used in getting camera parameters
 		paramsMLX90640 mlx90640; // camera parameters
 		//std::map<size_t,EventData> events; // map containing the change data
 		ThreadSafeQueue<EventData> events;// thread safe queue for events
