@@ -7,12 +7,12 @@ template<typename T>
 class ThreadSafeQueue {
 	std::queue<T> queue_;
 	mutable std::mutex mutex_;
-	// interface to check if empty
-	bool empty() const{
-		return queue_.empty();
-	}
 
 	public:
+		// interface to check if empty
+		bool empty() const{
+			return queue_.empty();
+		}
 		// leave default constructor the same
 		ThreadSafeQueue() = default;
 		ThreadSafeQueue(const ThreadSafeQueue<T> &) = delete;
@@ -33,14 +33,14 @@ class ThreadSafeQueue {
 		}
 
 		// thread-safe pop function
-		std::optional<T> pop() {
+		bool pop(T& ev) {
 			std::lock_guard<std::mutex> lock(mutex_);
 			if (queue_.empty()){
-				return {};
+				return false;
 			}
-			T tmp = queue_.front();
+			ev = queue_.front();
 			queue_.pop();
-			return tmp;
+			return true;
 		}
 		// thread-safe push operation
 		void push(const T &item) {

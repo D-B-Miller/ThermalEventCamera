@@ -156,8 +156,10 @@ void ThermalEventCamera::read(){
 	// check for changes against last frame
 	for(int i=0;i<834;++i)
 	{	// calculate log of frame intensity adding +1 to avoid zero-error
-		if(65535*log(this->frame[i]+1)!=65535*log(this->last_frame[i]+1)){
-			this->events.insert(std::pair<int,EventData>(i,EventData(this->frame[i]>this->last_frame[i]? 1 : -1)));
+		if(65535*log(this->frame[i]+1)!=65535*log(this->last_frame[i]+1))
+		{
+			//this->events.insert(std::pair<int,EventData>(i,this->frame[i]>this->last_frame[i]? 1 : -1));
+			this->events.push(EventData(i,this->frame[i]>this->last_frame[i]? 1 : -1));
 		}
 	}
 	// update last_frame with curent frame
@@ -177,10 +179,18 @@ int ThermalEventCamera::wrapperRead(){
 // update the output matrix
 // clear the current matrix, query the events map for any changes and process any
 void ThermalEventCamera::update(){
-	// iterate over map, c++ 17
-	for(auto const& [key,val] : this->events)
+	// if there are events in the queue
+	if(!this->events.empty())
 	{
-		this->out[key] = val.sign;
+		EventData ev;
+		// get current size of queue and iterate over it
+		// getting the entries and updating the signs matrix
+		for(unsigned long i=0;i< this->events.size();++i){
+			// if successful, update sign
+			if(this->events.pop(ev)){
+				this->out[ev.idx] = ev.sign;
+			}
+		}
 	}
 }
 

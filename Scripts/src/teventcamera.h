@@ -18,6 +18,7 @@
 #include <math.h>
 #include "headers/MLX90640_API.h"
 #include "headers/MLX90640_I2C_Driver.h"
+#include "threadsafequeue.h"
 
 #ifndef __TEVENTCAMERA__
 #define __TEVENTCAMERA__
@@ -51,18 +52,19 @@
 
 // structure for event data on each pixel
 struct EventData{
-	signed short sign = 0; // sign of change, +1 for positive, -1 for negative and 0 for no change
-	std::chrono::time_point<std::chrono::system_clock> time; // timestamp the change was logged
+	public:
+		signed short sign = 0; // sign of change, +1 for positive, -1 for negative and 0 for no change
+		std::chrono::time_point<std::chrono::system_clock> time; // timestamp the change was logged
+		int idx = 0; // array idx of change, currently 1D idx
 
-	// blank constructor
-	EventData(){
-		this->time  = std::chrono::system_clock::now(); // set timestamp
-	}
-	// constructor passing
-	EventData(unsigned short sig){
-		this->time  = std::chrono::system_clock::now(); // set timestamp
-		this->sign = sig; // set sign change
-	}
+		EventData(){};
+
+		// constructor passing idx and sign
+		EventData(int ii,unsigned short sig){
+			this->time  = std::chrono::system_clock::now(); // set timestamp
+			this->sign = sig; // set sign change
+			this->idx = ii;// set index
+		}
 };
 
 // class for treating an MLX90640 thermal camera as an Event Camera
@@ -103,7 +105,8 @@ class ThermalEventCamera {
 		uint16_t last_frame[834]; // last frame read
 		uint16_t eeMLX90640[832];
 		paramsMLX90640 mlx90640; // camera parameters
-		std::map<size_t,EventData> events; // map containing the change data
+		//std::map<size_t,EventData> events; // map containing the change data
+		ThreadSafeQueue<EventData> events;// thread safe queue for events
 		int fps; // fps set for camera device
 		std::future<int> readThread; // thread for asynchronous reading
 		std::future<int> updateThread; // thread for updating the output
