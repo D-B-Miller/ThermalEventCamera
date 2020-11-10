@@ -15,8 +15,8 @@ void manual_update(ThermalEventCamera *cc)
 	while(1){
 		cc->read();	 // update frame data
 		cc->update();	 // update sign data
-		//cc->printSigns(); // print signs data
-		cc->printSignsRaw();
+		cc->printSigns(); // print signs data
+		//cc->printSignsRaw();
 	}
 }
 
@@ -32,7 +32,7 @@ void thread_read(ThermalEventCamera *cc, int tlim)
 		// print frame as colors
 		cc->printFrame();
 		// get elapsed time
-		auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - start);
+		auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now() - start);
 		// if the elapsed time exceeds the limit, break from loop
 		if(elapsed.count()>tlim){
 			break;
@@ -50,18 +50,21 @@ void thread_update(ThermalEventCamera *cc, int tlim)
 	}
 	// get start time of program
 	auto start = std::chrono::system_clock::now();
-	while(1){
+	while(cc->isReadAlive(0))
+	{
 		// print frame as colors
 		cc->printSigns();
 		// get elapsed time
-		auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - start);
+		auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now() - start);
 		// if the elapsed time exceeds the limit, break from loop
 		if(elapsed.count()>tlim){
-			break;
+			std::cout << "stopping due to time limit" << std::endl;
+			cc->stop();
+			return;
 		}
 	}
-	// set flag to stop threads
-	cc->stop();
+	auto res = cc->isReadAlive(0);
+	std::cout << "stopping due to read thread stopping : " << res << std::endl;
 }
 
 int main(int argc,char* argv[]){
@@ -69,8 +72,8 @@ int main(int argc,char* argv[]){
 	std::cout << "starting camera..." << std::endl;
 	ThermalEventCamera cam(32);
 	//manual_read(&cam);
-	manual_update(&cam);
-	//thread_read(&cam);
-	//thread_update(&cam);
+	//manual_update(&cam);
+	//thread_read(&cam,120);
+	thread_update(&cam,120);
 	std::cout << "exiting" << std::endl;
 }

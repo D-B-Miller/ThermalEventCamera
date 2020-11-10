@@ -62,7 +62,7 @@ ThermalEventCamera::ThermalEventCamera()
 ThermalEventCamera::~ThermalEventCamera()
 {
 	// set thread flag stop
-	this->stopThread = true;
+	this->stopFlag = true;
 	// time to wait for threads to finish
 	std::chrono::milliseconds span (100);
 	// status returned by threads
@@ -134,19 +134,21 @@ void ThermalEventCamera::setFps(int nfps)
 
 // start the threaded I2C read
 void ThermalEventCamera::start(){
-	this->stopThread = false;
+	this->stopFlag = false; // set stop flag to false
+	// if the fps has not been set. the camera prob hasn't been initialised
 	if(this->fps == 0){
 		std::cerr << "Frame rate has not been set! Cannot start threads!" << std::endl;
 		return;
 	}
 	// create asynchronous thread to read from I2C bus and populate behaviour
+	std::cout << "Starting threads" << std::endl;
 	this->readThread = std::async(std::launch::async,&ThermalEventCamera::wrapperRead,this);
 	this->updateThread = std::async(std::launch::async,&ThermalEventCamera::wrapperUpdate,this);
 }
 
 // stop the threaded I2C read
 void ThermalEventCamera::stop(){
-	this->stopThread = true;
+	this->stopFlag = true;
 }
 
 // single read of I2C buff and find element wise
@@ -169,7 +171,8 @@ void ThermalEventCamera::read(){
 // threaded read of I2C buff
 // repeated calls of read so long as stopThreadis false
 int ThermalEventCamera::wrapperRead(){
-	while(not this->stopThread)
+	std::cout << "entering read loop" << std::endl;
+	while(!this->stopFlag)
 	{
 		this->read();
 	}
@@ -197,7 +200,7 @@ void ThermalEventCamera::update(){
 // threaded updated based on current data
 // runs so long as stopThread is True
 int ThermalEventCamera::wrapperUpdate(){
-	while(not this->stopThread)
+	while(!this->stopFlag)
 	{
 		this->update();
 	}
@@ -365,4 +368,33 @@ void ThermalEventCamera::printFrame(){
         }
         //std::this_thread::sleep_for(std::chrono::milliseconds(20));
         printf("\x1b[33A");
+}
+
+// function for checking if the read thread is alive
+bool ThermalEventCamera::isReadAlive(int t)
+{
+	// if there is not a shared state available
+	// then it must still be running
+	if(!this->readThread.valid())
+	{
+		return true;
+	}
+	else
+	{
+		// if a shared state is available
+		// wait for a returned result and check returned status
+		return this->readThread.wait_for(std::chrono::milliseconds(t)) == std::future_status::ready;
+	}
+}
+
+bool ThermalEventCamera::isUpdateAlive(int t)
+{
+	if(!this->updateThread.valid())
+	{
+		return true;
+	}
+	else
+	{
+		return this->updateThread.wait_for(std::chrono::milliseconds(t)) == std::future_status::ready;
+	}
 }

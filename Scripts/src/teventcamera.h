@@ -14,8 +14,8 @@
 #include <algorithm>
 #include <memory>
 #include <unistd.h>
-#include <map>
 #include <math.h>
+#include <atomic>
 #include "headers/MLX90640_API.h"
 #include "headers/MLX90640_I2C_Driver.h"
 #include "threadsafequeue.h"
@@ -88,10 +88,12 @@ class ThermalEventCamera {
 		void start(); // start threaded reading
 		void stop(); // stop threaded reading
 		int getFps(); // function to get refresh FPS
-		void setFps(int); // function to update refresh FPS
+		void setFps(int nfps); // function to update refresh FPS
 		void printSigns(); // print signs matrix as colors in the console
 		void printFrame(); // print current frame as colors in the console
 		void printSignsRaw(); // print signs matrix raw values
+		bool isReadAlive(int t); // check if read thread is alive. pass wait delay in msecs
+		bool isUpdateAlive(int t); // check if update thread is alive. pass wait delay in msecs
 	private:
 		int wrapperRead(); // function passed to readThread. Loops ThermalEventCamera::read
 		int wrapperUpdate(); // function passed to updateThread. Loops update
@@ -107,6 +109,6 @@ class ThermalEventCamera {
 		int fps; // fps set for camera device
 		std::future<int> readThread; // thread for asynchronous reading
 		std::future<int> updateThread; // thread for updating the output
-		bool stopThread=false; // flag to stop the thread from running
+		std::atomic<bool> stopFlag {true}; // flag to stop the thread from running
 };
 #endif
