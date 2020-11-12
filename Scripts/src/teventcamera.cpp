@@ -382,28 +382,10 @@ void ThermalEventCamera::printFrame(){
 // function for checking if the read thread is alive
 bool ThermalEventCamera::isReadAlive(int t)
 {
-	// if there is not a shared state available
-	// then it must still be running
-	if(!this->readThread.valid())
-	{
-		return true;
-	}
-	else
-	{
-		// if a shared state is available
-		// wait for a returned result and check returned status
-		return this->readThread.wait_for(std::chrono::milliseconds(t)) == std::future_status::ready;
-	}
+	return this->readThread.wait_for(std::chrono::milliseconds(t)) != std::future_status::ready;
 }
 
 bool ThermalEventCamera::isUpdateAlive(int t)
 {
-	if(!this->updateThread.valid())
-	{
-		return true;
-	}
-	else
-	{
-		return this->updateThread.wait_for(std::chrono::milliseconds(t)) == std::future_status::ready;
-	}
+	return this->updateThread.wait_for(std::chrono::milliseconds(t)) != std::future_status::ready;
 }
