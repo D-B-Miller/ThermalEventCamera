@@ -68,24 +68,20 @@ ThermalEventCamera::~ThermalEventCamera()
 	// status returned by threads
 	std::future_status status;
 	// wait for read thread to finish
-	if(this->readThread.valid()){
-		status = this->readThread.wait_for(span);
-		if(status == std::future_status::ready){
-			std::cout << "read thread stopped" << std::endl;
-		}
-		else if(status == std::future_status::timeout){
-			std::cerr << "warning: timeout waiting for read thread to finish" << std::endl;
-		}
+	status = this->readThread.wait_for(span);
+	if(status == std::future_status::ready){
+		std::cout << "read thread stopped" << std::endl;
+	}
+	else if(status == std::future_status::timeout){
+		std::cerr << "warning: timeout waiting for read thread to finish" << std::endl;
 	}
 	// wait for update thread to finish
-	if(this->updateThread.valid()){
-		status = this->updateThread.wait_for(span);
-		if(status == std::future_status::ready){
-			std::cout << "update thread stopped" << std::endl;
-		}
-		else if(status == std::future_status::timeout){
-			std::cerr << "warning: timeout whilst waiting for update thread to stop" << std::endl;
-		}
+	status = this->updateThread.wait_for(span);
+	if(status == std::future_status::ready){
+		std::cout << "update thread stopped" << std::endl;
+	}
+	else if(status == std::future_status::timeout){
+		std::cerr << "warning: timeout whilst waiting for update thread to stop" << std::endl;
 	}
 }
 
@@ -141,7 +137,6 @@ void ThermalEventCamera::start(){
 		return;
 	}
 	// create asynchronous thread to read from I2C bus and populate behaviour
-	std::cout << "Starting threads" << std::endl;
 	this->readThread = std::async(std::launch::async,&ThermalEventCamera::wrapperRead,this);
 	this->updateThread = std::async(std::launch::async,&ThermalEventCamera::wrapperUpdate,this);
 }
