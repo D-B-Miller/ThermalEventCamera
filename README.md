@@ -19,7 +19,13 @@ IEEE Trans. Pattern Anal. Machine Intell. (TPAMI), 2020
  - [src](Scripts/src) : All source scripts
  - [build](Scripts/build) : All building scripts
  - [examples](Scripts/examples) : Scripts showing how to use the code in src
- 
+
+## Features
+ - Wraps the functionality of the mlx90640 in a class
+ - Threaded interface for reading and updating
+ - Custom EventData structure containing timestamp, idx and sign of change.
+ - Built in C++ 17
+
 ## Build Instructions
 There is a [Makefile](Makefile) for this repository.
 
