@@ -69,7 +69,13 @@ struct EventData{
 		std::chrono::time_point<std::chrono::system_clock> time() const {return this->ts;};
 };
 
+bool logCompare(uint16_t c,uint16_t p)
+{
+	return 65535*log(c+1)!=65535*log(p+1);
+}
+
 // class for treating an MLX90640 thermal camera as an Event Camera
+typedef bool (*CompareFunc)(uint16_t,uint16_t);
 class ThermalEventCamera {
 	public:
 		signed short out[834] {0}; // output array of sign changes
@@ -77,7 +83,7 @@ class ThermalEventCamera {
 
 		ThermalEventCamera(); // constructor that sets to 32 fps
 		ThermalEventCamera(int fps); // constructor with fps argument
-		~ThermalEventCamera(); // deconstructor
+		virtual ~ThermalEventCamera(); // deconstructor
 		// set print colors
 		void setNegColor(const char* neg);
 		void setPosColor(const char* pos);
@@ -95,7 +101,12 @@ class ThermalEventCamera {
 		void printSignsRaw(); // print signs matrix raw values
 		bool isReadAlive(int t); // check if read thread is alive. pass wait delay in msecs
 		bool isUpdateAlive(int t); // check if update thread is alive. pass wait delay in msecs
+		// set the function for comparing pixel values
+		// returns true if the two pixels are sufficiently different
+		// c is the current pixel and p is the past pixel
+		void setCompare(CompareFunc t);
 	private:
+		CompareFunc compare = logCompare; // function for comparing pixels from the past and current frame
 		int wrapperRead(); // function passed to readThread. Loops ThermalEventCamera::read
 		int wrapperUpdate(); // function passed to updateThread. Loops update
 		// colors used in printSigns

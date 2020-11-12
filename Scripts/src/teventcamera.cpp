@@ -146,6 +146,13 @@ void ThermalEventCamera::stop(){
 	this->stopFlag = true;
 }
 
+// set pixel comparison function for comparing a pixel from current
+// and past frames
+void ThermalEventCamera::setCompare(CompareFunc f)
+{
+	this->compare = f;
+}
+
 // single read of I2C buff and find element wise
 void ThermalEventCamera::read(){
 	// get frame data
