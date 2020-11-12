@@ -171,11 +171,15 @@ void ThermalEventCamera::read(){
 // threaded read of I2C buff
 // repeated calls of read so long as stopThreadis false
 int ThermalEventCamera::wrapperRead(){
+	std::unique_lock<std::mutex> lck(this->print_mutex);
 	std::cout << "entering read loop" << std::endl;
+	lck.unlock();
 	while(!this->stopFlag)
 	{
 		this->read();
 	}
+	lck.lock();
+	std::cout << "exiting read loop with: " << this->stopFlag << std::endl;
 	return 0;
 }
 
@@ -200,10 +204,15 @@ void ThermalEventCamera::update(){
 // threaded updated based on current data
 // runs so long as stopThread is True
 int ThermalEventCamera::wrapperUpdate(){
+	std::unique_lock<std::mutex> lck(this->print_mutex);
+	std::cout << "starting update thread" << std::endl;
+	lck.unlock();
 	while(!this->stopFlag)
 	{
 		this->update();
 	}
+	lck.lock();
+	std::cout << "exiting update thread with: " << this->stopFlag << std::endl;
 	return 0;
 }
 

@@ -16,6 +16,7 @@
 #include <unistd.h>
 #include <math.h>
 #include <atomic>
+#include <mutex>
 #include "headers/MLX90640_API.h"
 #include "headers/MLX90640_I2C_Driver.h"
 #include "threadsafequeue.h"
@@ -110,5 +111,6 @@ class ThermalEventCamera {
 		std::future<int> readThread; // thread for asynchronous reading
 		std::future<int> updateThread; // thread for updating the output
 		std::atomic<bool> stopFlag {true}; // flag to stop the thread from running
+		std::mutex print_mutex; // mutex to help the different threads print to cout
 };
 #endif
