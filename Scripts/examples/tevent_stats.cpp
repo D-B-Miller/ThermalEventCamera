@@ -12,9 +12,9 @@ uint16_t findMin(uint16_t *arr,size_t n)
 	return temp;
 }
 
-uint16_t findMax(uint16_t *arr,size_t n)
+uint64_t findMax(uint16_t *arr,size_t n)
 {
-	uint16_t temp=0;
+	uint64_t temp=0;
 	for(size_t i=0;i<n;++i){
 		if(arr[i]>temp){
 			temp=arr[i];
@@ -25,7 +25,7 @@ uint16_t findMax(uint16_t *arr,size_t n)
 
 float findMean(uint16_t *arr,size_t n)
 {
-	uint16_t sum = 0;
+	uint64_t sum = 0;
 	for(size_t i=0;i<n;++i){
 		sum += arr[i];
 	}
