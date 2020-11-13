@@ -152,6 +152,11 @@ void ThermalEventCamera::stop(){
 	this->stopFlag = true;
 }
 
+bool ThermalEventCamera::getCompareFlag()
+{
+	return this->cmpSet;
+}
+
 // set pixel comparison function for comparing a pixel from current
 // and past frames
 void ThermalEventCamera::setCompare(CompareFunc f)
