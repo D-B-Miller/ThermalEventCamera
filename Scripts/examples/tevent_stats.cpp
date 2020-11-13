@@ -45,7 +45,7 @@ float findStdDev(uint16_t *arr,size_t n,float mean)
 
 int main(){
 	ThermalEventCamera cam(32);
-	int tlim = 180;
+	int tlim = 120;
 	std::ofstream statfile;
 	statfile.open("Scripts/bin/event_stats.csv");
 	statfile << "min,max,mean,std\n";
