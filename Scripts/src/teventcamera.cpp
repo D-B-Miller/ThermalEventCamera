@@ -134,6 +134,14 @@ void ThermalEventCamera::setFps(int nfps)
 	}
 }
 
+void ThermalEventCamera::getFrame(uint16_t (&cf)[834])
+{
+	std::mutex mx;
+	std::unique_lock<std::mutex> lck(mx);
+	std::copy(std::begin(this->frame),std::end(this->frame),std::begin(cf));
+	lck.unlock();
+}
+
 // start the threaded I2C read
 void ThermalEventCamera::start(){
 	this->stopFlag = false; // set stop flag to false

@@ -104,7 +104,7 @@ class ThermalEventCamera {
 		// updated with each update call
 		std::chrono::time_point<std::chrono::system_clock> getLatestTS();
 		// get copy of last read data
-		uint16_t ( &getFrame())[834]{return this->frame;};
+		void getFrame(uint16_t (&cf)[834]);
 		// get copy of compare flag
 		bool getCompareFlag(); 
 	private:
