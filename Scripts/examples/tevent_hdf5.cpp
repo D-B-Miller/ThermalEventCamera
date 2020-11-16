@@ -10,7 +10,8 @@ int main()
 	// return value
 	// non-zero indicates an error
 	int ret = 0;
-	int tlim = 120; // time limit
+	int tlim = 600; // time limit
+	std::cout << "time limit set to " << tlim << " secs" << std::endl;
 	// setup hdf5 file
 	std::cout << "opening hdf5 file tevent_stats.hdf5" << std::endl;
 	H5::H5File file("tevent_stats.hdf5",H5F_ACC_TRUNC);
@@ -48,6 +49,7 @@ int main()
 	auto start = std::chrono::system_clock::now();
 	// main loop
 	// running camera unthreaded
+	std::cout << "starting main loop" << std::endl;
 	while(1)
 	{
 		try{
@@ -89,6 +91,7 @@ int main()
     		}
 	}
 	/* cleanup */
+	std::cout << "cleaning up" << std::endl;
 	// close file
 	// becomes inaccessible otherwise
 	file.close();
