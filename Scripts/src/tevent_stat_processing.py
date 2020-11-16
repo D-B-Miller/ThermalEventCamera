@@ -1,6 +1,6 @@
 import h5py
 import numpy as np
-import matplotlib as plt
+import matplotlib.pyplot as plt
 from scipy.ndimage import gaussian_filter
 path = r"D:\CoronaWork\Scripts\ThermalEventCamera\ThermalEventCamera\tevent_stats.hdf5"
 
@@ -57,7 +57,7 @@ def log_cmp_test():
         dstd = np.std(dlog[mask],0)
         print(f"log std 0: {dstd}, shape {dstd.shape}")
 
-def gauss_filter():
+def gauss_filter(idx=-1):
     with h5py.File(path,'r') as file:
         do = file["tevent"][()]
         print(f"orig shape {do.shape}")
@@ -66,12 +66,23 @@ def gauss_filter():
         ft = np.zeros(dd.shape,dtype=dd.dtype)
         gstd = np.std(do[()],axis=(0,1))
         print(f"global std {gstd}")
-        for ii in range(dd.shape[2]):
-            ft[:,:,ii] = gaussian_filter(dd[:,:,ii],sigma=gstd)
-    return ft
-        
+        if idx==-1:
+            for ii in range(dd.shape[2]):
+                print(ii)
+                ft[:,:,ii] = gaussian_filter(dd[:,:,ii],sigma=gstd)
+            return ft
+        else:
+            try:
+                iter(idx)
+                ft = np.zeros((*dd.shape[:2],len(idx)),dtype=do.dtype)
+                for i,ii in zip(range(len(idx)),idx):
+                    ft[:,:,i] = gaussian_filter(dd[:,:,ii],sigma=gstd)
+                return ft
+            except TypeError:
+                return gaussian_filter(dd[:,:,idx],sigma=gstd)
+
 if __name__ == "__main__":
     #basic_stats()
     #log_stats()
     #log_cmp_test()
-    filt = gauss_filter()
+    filt = gauss_filter([i for i in range(200)])
