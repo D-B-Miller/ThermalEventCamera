@@ -58,6 +58,7 @@ make clean
  - [tevent_example.cpp](Scripts/examples/tevent_example.cpp) : Shows how to use the ThermalEventCamera in an unthreaded and threaded manner
  - [tevent_compare.cpp](Scripts/examples/tevent_compare.cpp) : Shows how to set a custom comparison function in ThermalEventCamera and then apply it in a threaded manner.
  - [tevent_stats.cpp](Scripts/examples/tevent_stats.cpp) : Collects information about the frames and saves it to [event_stats.csv](Scripts/bin/event_stats.csv)
+ - [tevent_hdf5.cpp](Scripts/examples/tevent_hdf5.cpp) : Collects and stores each frame in a HDF5 file. Requires the [HDF5 library](https://portal.hdfgroup.org/display/support) to be installed and setup.
  
 ## Theory
 The image below shows the standard MLX90640 reading loop using the library functions. Each labelled block represents a collection of functions constituting a major step in the process. The arrows are the information that flows between each step.
