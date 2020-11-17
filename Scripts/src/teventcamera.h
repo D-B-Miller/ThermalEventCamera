@@ -106,7 +106,9 @@ class ThermalEventCamera {
 		// get copy of last read data
 		void getFrame(uint16_t (&cf)[834]);
 		// get copy of compare flag
-		bool getCompareFlag(); 
+		bool getCompareFlag();
+		// interpolate outliers
+		void interpOutliers(uint16_t (&cf)[832]);
 	private:
 		// flag stating if the compare function has been set
 		bool cmpSet = false;

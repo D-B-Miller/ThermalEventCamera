@@ -142,6 +142,19 @@ void ThermalEventCamera::getFrame(uint16_t (&cf)[834])
 	lck.unlock();
 }
 
+void ThermalEventCamera::interpOutliers(uint16_t (&cf)[832])
+{
+	std::mutex mx;
+	std::unique_lock<std::mutex> lck(mx);
+	// interpolate outliers
+	// uses matrix setup by *_ExtractParameters call in constructor
+	MLX90640_InterpolateOutliers(this->frame,this->eeMLX90640);
+	// free mutex so the thread can keep running
+	lck.unlock();
+	// copy matrix to pointer
+	std::copy(std::begin(this->eeMLX90640),std::end(this->eeMLX90640),std::begin(cf));
+}
+
 // start the threaded I2C read
 void ThermalEventCamera::start(){
 	this->stopFlag = false; // set stop flag to false
