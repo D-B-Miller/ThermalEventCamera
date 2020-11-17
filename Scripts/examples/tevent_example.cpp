@@ -1,5 +1,6 @@
 #include "teventcamera.h"
 #include <iostream>
+#include <string.h>
 
 // function for testing the manual read function
 void manual_read(ThermalEventCamera *cc)
@@ -73,9 +74,23 @@ int main(int argc,char* argv[]){
 	// initialise camera at 32 fps
 	std::cout << "starting camera..." << std::endl;
 	ThermalEventCamera cam(32);
-	//manual_read(&cam);
-	//manual_update(&cam);
-	thread_read(&cam,120);
-	//thread_update(&cam,120);
+	// parse comand line arguments
+	if(argc>1){
+		if(std::strcmp(argv[1],"--man_read")){
+			manual_read(&cam);
+		}
+		else if(std::strcmp(argv[1],"--man_update")){
+			manual_update(&cam);
+		}
+		else if(std::strcmp(argv[1],"--td_read")){
+			thread_read(&cam,120);
+		}
+		else if(std::strcmp(argv[1],"--td_update")){
+			thread_update(&cam,120);
+		}
+	}
+	else{ // if no flag was specified, run thread_update
+		thread_update(&cam,120);
+	}
 	std::cout << "exiting" << std::endl;
 }
