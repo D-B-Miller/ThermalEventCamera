@@ -279,9 +279,15 @@ int ThermalEventCamera::wrapperUpdate(){
 // function for posting the signs as colours in the console
 // based off the test example in the mlx90640 lib
 // prints the array with the exception of the last two entries so it's a rectangular matrix
-void ThermalEventCamera::printSigns(){
-	for(int x=0;x<32;++x){
-		for(int y=0;y<26;++y){
+void ThermalEventCamera::printSigns(bool flip){
+	int c=32,r=26;
+	if(flip){
+		c = 26;
+		r = 32;
+	}
+
+	for(int x=0;x<c;++x){
+		for(int y=0;y<r;++y){
 			// get value of signs matrix
 			signed short val = this->out[32*(25-y) + x];
 			// print color based on value

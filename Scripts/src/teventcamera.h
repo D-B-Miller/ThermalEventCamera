@@ -94,7 +94,7 @@ class ThermalEventCamera {
 		void stop(); // stop threaded reading
 		int getFps(); // function to get refresh FPS
 		void setFps(int nfps); // function to update refresh FPS
-		void printSigns(); // print signs matrix as colors in the console
+		void printSigns(bool flip=false); // print signs matrix as colors in the console
 		void printFrame(); // print current frame as colors in the console
 		void printSignsRaw(); // print signs matrix raw values
 		bool isReadAlive(int t); // check if read thread is alive. pass wait delay in msecs
