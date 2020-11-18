@@ -128,14 +128,21 @@ void ThermalEventCamera::setFps(int nfps)
 	}
 }
 
+// gets a copy of the last read data
+// copies values into matrix provided by user
 void ThermalEventCamera::getFrame(uint16_t (&cf)[834])
 {
 	std::mutex mx;
+	// lock access to frame in case threaded interface is being used
 	std::unique_lock<std::mutex> lck(mx);
+	// copy values across
 	std::copy(std::begin(this->frame),std::end(this->frame),std::begin(cf));
+	// release lock on data
 	lck.unlock();
 }
 
+// apply MLX90640_InterpolateOutliers to current state of frame
+// and copy values to matrix provided by user
 void ThermalEventCamera::interpOutliers(uint16_t (&cf)[832])
 {
 	std::mutex mx;
@@ -167,6 +174,7 @@ void ThermalEventCamera::stop(){
 	this->stopFlag = true;
 }
 
+// get flag indicating if a custom comparison function has been set
 bool ThermalEventCamera::getCompareFlag()
 {
 	return this->cmpSet;
@@ -225,6 +233,8 @@ void ThermalEventCamera::read(){
 // threaded read of I2C buff
 // repeated calls of read so long as stopThreadis false
 int ThermalEventCamera::wrapperRead(){
+	// get lock on std cout
+	// to be used when exception handling is set
 	std::unique_lock<std::mutex> lck(this->print_mutex);
 	lck.unlock();
 	while(!this->stopFlag)
@@ -433,11 +443,14 @@ void ThermalEventCamera::printFrame(){
 }
 
 // function for checking if the read thread is alive
+// user provides waiting time in millisecodns for wait_for call
 bool ThermalEventCamera::isReadAlive(int t)
 {
 	return this->readThread.wait_for(std::chrono::milliseconds(t)) != std::future_status::ready;
 }
 
+// function for checking if the update thread is alive
+// user provides waiting time in milliseconds for wait_for call
 bool ThermalEventCamera::isUpdateAlive(int t)
 {
 	return this->updateThread.wait_for(std::chrono::milliseconds(t)) != std::future_status::ready;
