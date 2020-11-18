@@ -157,7 +157,8 @@ void ThermalEventCamera::interpOutliers(uint16_t (&cf)[832])
 }
 
 // start the threaded I2C read
-void ThermalEventCamera::start(){
+void ThermalEventCamera::start()
+{
 	this->stopFlag = false; // set stop flag to false
 	// if the fps has not been set. the camera prob hasn't been initialised
 	if(this->fps == 0){
@@ -170,7 +171,8 @@ void ThermalEventCamera::start(){
 }
 
 // stop the threaded I2C read
-void ThermalEventCamera::stop(){
+void ThermalEventCamera::stop()
+{
 	this->stopFlag = true;
 }
 
@@ -198,7 +200,8 @@ void ThermalEventCamera::setCompare(CompareFunc f)
 }
 
 // single read of I2C buff and find element wise
-void ThermalEventCamera::read(){
+void ThermalEventCamera::read()
+{
 	// get frame data
 	MLX90640_GetFrameData(MLX_I2C_ADDR,this->frame);
 	// check for changes against last frame
@@ -229,7 +232,8 @@ void ThermalEventCamera::read(){
 
 // threaded read of I2C buff
 // repeated calls of read so long as stopThreadis false
-int ThermalEventCamera::wrapperRead(){
+int ThermalEventCamera::wrapperRead()
+{
 	// get lock on std cout
 	// to be used when exception handling is set
 	std::unique_lock<std::mutex> lck(this->print_mutex);
@@ -244,7 +248,8 @@ int ThermalEventCamera::wrapperRead(){
 
 // update the output matrix
 // clear the current matrix, query the events map for any changes and process any
-void ThermalEventCamera::update(){
+void ThermalEventCamera::update()
+{
 	if(this->clearSigns){
 		std::fill(std::begin(this->out),std::end(this->out),0);
 	}
@@ -266,7 +271,8 @@ void ThermalEventCamera::update(){
 
 // threaded updated based on current data
 // runs so long as stopThread is True
-int ThermalEventCamera::wrapperUpdate(){
+int ThermalEventCamera::wrapperUpdate()
+{
 	std::unique_lock<std::mutex> lck(this->print_mutex);
 	lck.unlock();
 	while(!this->stopFlag){
@@ -279,9 +285,17 @@ int ThermalEventCamera::wrapperUpdate(){
 // function for posting the signs as colours in the console
 // based off the test example in the mlx90640 lib
 // prints the array with the exception of the last two entries so it's a rectangular matrix
-void ThermalEventCamera::printSigns(){
-	for(int x=0;x<32;++x){
-		for(int y=0;y<26;++y){
+void ThermalEventCamera::printSigns(bool flip)
+{	// rows and column of printed image
+	int c=32,r=26;
+	// if the flip flag is set
+	// the rows and cols are switched
+	if(flip){
+		c = 26;
+		r = 32;
+	}
+	for(int x=0;x<c;++x){
+		for(int y=0;y<r;++y){
 			// get value of signs matrix
 			signed short val = this->out[32*(25-y) + x];
 			// print color based on value
@@ -302,11 +316,18 @@ void ThermalEventCamera::printSigns(){
 
 // function for printing the out matrix as raw values
 // used as debugging
-void ThermalEventCamera::printSignsRaw()
-{
-	for(int x=0;x<32;++x)
+void ThermalEventCamera::printSignsRaw(bool flip)
+{	// rows and column of printed image
+	int c=32,r=26;
+	// if the flip flag is set
+	// the rows and cols are switched
+	if(flip){
+		c = 26;
+		r = 32;
+	}
+	for(int x=0;x<c;++x)
 	{
-		for(int y=0;y<26;++y)
+		for(int y=0;y<r;++y)
 		{
 			std::cout << this->out[32*(25-y)+x];
 		}
@@ -316,7 +337,8 @@ void ThermalEventCamera::printSignsRaw()
 }
 
 // set the color used with printing negative sign to console
-void ThermalEventCamera::setNegColor(const char* neg){
+void ThermalEventCamera::setNegColor(const char* neg)
+{
 	char* ll = (char*)neg;
 	// convert string to lowercase
 	while(*neg){
@@ -360,7 +382,8 @@ void ThermalEventCamera::setNegColor(const char* neg){
 }
 
 // set the color used with printing positive sign to console
-void ThermalEventCamera::setPosColor(const char* pos){
+void ThermalEventCamera::setPosColor(const char* pos)
+{
 	char* ll = (char*)pos;
 	// convert string to lowercase
 	while(*pos){
@@ -403,7 +426,16 @@ void ThermalEventCamera::setPosColor(const char* pos){
 	}
 }
 // convert frame to temperature using set emissivity and print as colors
-void ThermalEventCamera::printFrame(){
+void ThermalEventCamera::printFrame(bool flip)
+{
+	// rows and column of printed image
+	int c=32,r=24;
+	// if the flip flag is set
+	// the rows and cols are switched
+	if(flip){
+		c = 24;
+		r = 32;
+	}
 	static float mlx90640To[768]; // converted temperature values
 	float eTa = MLX90640_GetTa(this->frame, &this->mlx90640); // estimated environmental temperatures
 	// convert data to temperature
@@ -412,8 +444,8 @@ void ThermalEventCamera::printFrame(){
         MLX90640_BadPixelsCorrection((&mlx90640)->brokenPixels, mlx90640To, 1, &this->mlx90640);
         MLX90640_BadPixelsCorrection((&mlx90640)->outlierPixels, mlx90640To, 1, &this->mlx90640);
 	// iterate over matrix and print values as colors
-	for(int x = 0; x < 32; x++){
-            for(int y = 0; y < 24; y++){
+	for(int x = 0; x < c; x++){
+            for(int y = 0; y < r; y++){
                 //std::cout << image[32 * y + x] << ",";
                 float val = mlx90640To[32 * (23-y) + x];
                 if(val > 99.99) val = 99.99;
