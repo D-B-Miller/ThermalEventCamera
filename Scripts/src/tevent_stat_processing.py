@@ -79,18 +79,18 @@ def log_stats():
 # apply a gaussian filter based on the global standard deviation
 # idx parameter indicates which indicies to apply a gaussian filter to
 # -1 means all frames
-def gauss_filter(idx=-1):
-    dd = get_data(True,True)
-    # get global std
-    gstd = np.std(dd)
-    print(f"global std {gstd}")
+def gauss_filter(dd,idx=-1,gstd=None):
+    if std is None:
+        # get global std
+        gstd = np.std(dd)
+        print(f"using global std {gstd}")
     # if the target index is -1
     # apply filter to all frames
     if idx==-1:
         # build matrix to hold results
         ft = np.zeros(dd.shape,dtype=dd.dtype)
         for ii in range(dd.shape[2]):
-            print(ii)
+            #print(ii)
             ft[:,:,ii] = gaussian_filter(dd[:,:,ii],sigma=gstd)
         return ft
     else:
@@ -171,6 +171,40 @@ def plot_surface(data):
         plt.draw()
     # set slider update function
     sidx.on_changed(update)
+    # show plot
+    plt.show()
+
+def gauss_surface(data):
+    fig = plt.figure()
+    ax = fig.gca(projection='3d')
+    # data
+    X = np.arange(0,data.shape[0],1)
+    Y = np.arange(0,data.shape[1],1)
+    X,Y = np.meshgrid(Y,X)
+    # generate plot
+    surf = [ax.plot_surface(X,Y,data[:,:,0],cmap=cm.coolwarm,
+                           linewidth=0,antialiased=False)]
+    # set limit on axis
+    ax.set_zlim(data.min(),data.max())
+    # axes for slider
+    axcolor = 'lightgoldenrodyellow'
+    axidx = plt.axes([0.25, 0.15, 0.65, 0.03], facecolor=axcolor)
+    sidx = Slider(axidx, 'Idx',0,data.shape[2]-1,valinit=0, valstep=1)
+    axstd = plt.axes([0.25, 0.2, 0.65, 0.03], facecolor=axcolor)
+    sstd = Slider(axstd, 'std',0,100.0,valinit=0, valstep=0.1)
+    # update function for slider
+    def update(val,surf=surf):
+        ii = sidx.val
+        #print(f"new idx {ii}")
+        ax.clear()
+        #remove plot
+        gg = gaussian_filter(data[:,:,ii],sigma=sstd.val)
+        ax.plot_surface(X,Y,gg,cmap=cm.coolwarm,linewidth=0,antialiased=False)
+        #plt.gcf().canvas.draw_idle()
+        plt.draw()
+    # set slider update function
+    sidx.on_changed(update)
+    sstd.on_changed(update)
     # show plot
     plt.show()
 
