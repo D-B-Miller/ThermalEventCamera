@@ -19,6 +19,33 @@ bool thresh(uint16_t c, uint16_t p)
 	}
 }
 
+// noise filter developed through experiments
+// see FILTER.md for details
+bool noise_filt(uint16_t c, uint16_t p)
+{
+	// threshold parameters
+	// set here for easy editing
+	const uint16_t t0 = 65000,t1=t0+350;
+	// activity is usually above 65000
+	// anything below it is ignored
+	// also helps filter out known data artifacts
+	if((c<t0)||(p<t0)){
+		return false;
+	}
+	else{
+		// if neither of the pixels are within the activity threshold
+		// ignore them
+		if((c<=t1)&&(p<=t1)){
+			return false;
+		}
+		else{
+			// if both pixels indicate activity
+			// then return true for any difference
+			return c!=0? true: false;
+		}
+	}
+}
+
 int main()
 {
 	ThermalEventCamera cam(32); // create camera
