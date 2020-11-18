@@ -71,10 +71,7 @@ ThermalEventCamera::~ThermalEventCamera()
 	if(this->readThread.valid())
 	{
 		status = this->readThread.wait_for(span);
-		if(status == std::future_status::ready){
-		std::cout << "read thread stopped" << std::endl;
-		}
-		else if(status == std::future_status::timeout){
+		if(status == std::future_status::timeout){
 			std::cerr << "warning: timeout waiting for read thread to finish" << std::endl;
 		}
 	}
@@ -82,10 +79,7 @@ ThermalEventCamera::~ThermalEventCamera()
 	if(this->updateThread.valid())
 	{
 		status = this->updateThread.wait_for(span);
-		if(status == std::future_status::ready){
-			std::cout << "update thread stopped" << std::endl;
-		}
-		else if(status == std::future_status::timeout){
+		if(status == std::future_status::timeout){
 			std::cerr << "warning: timeout whilst waiting for update thread to stop" << std::endl;
 		}
 	}
@@ -232,14 +226,12 @@ void ThermalEventCamera::read(){
 // repeated calls of read so long as stopThreadis false
 int ThermalEventCamera::wrapperRead(){
 	std::unique_lock<std::mutex> lck(this->print_mutex);
-	std::cout << "entering read loop" << std::endl;
 	lck.unlock();
 	while(!this->stopFlag)
 	{
 		this->read();
 	}
 	lck.lock();
-	std::cout << "exiting read loop with: " << this->stopFlag << std::endl;
 	return 0;
 }
 
@@ -266,14 +258,11 @@ void ThermalEventCamera::update(){
 // runs so long as stopThread is True
 int ThermalEventCamera::wrapperUpdate(){
 	std::unique_lock<std::mutex> lck(this->print_mutex);
-	std::cout << "starting update thread" << std::endl;
 	lck.unlock();
-	while(!this->stopFlag)
-	{
+	while(!this->stopFlag){
 		this->update();
 	}
 	lck.lock();
-	std::cout << "exiting update thread with: " << this->stopFlag << std::endl;
 	return 0;
 }
 
@@ -283,7 +272,9 @@ int ThermalEventCamera::wrapperUpdate(){
 void ThermalEventCamera::printSigns(){
 	for(int x=0;x<32;++x){
 		for(int y=0;y<26;++y){
+			// get value of signs matrix
 			signed short val = this->out[32*(25-y) + x];
+			// print color based on value
 			if (val==1){
 				std::cout << this->ansi_pos_color;
 			}
@@ -297,6 +288,7 @@ void ThermalEventCamera::printSigns(){
 }
 
 // function for printing the out matrix as raw values
+// used as debugging
 void ThermalEventCamera::printSignsRaw()
 {
 	for(int x=0;x<32;++x)
