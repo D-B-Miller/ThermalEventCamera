@@ -188,13 +188,10 @@ void ThermalEventCamera::setCompare(CompareFunc f)
 	this->compare = f;
 	// an uninitialised CompareFunc when compared to 0 returns true
 	// if the function is initialised set flag
-	if(f!=0)
-	{
+	if(f!=0){
 		this->cmpSet = true;
 	}
-	else
-	{
-		// if the user has passed a blank comparison function
+	else{	// if the user has passed a blank comparison function
 		// clear flag
 		this->cmpSet = false;
 	}
@@ -248,6 +245,9 @@ int ThermalEventCamera::wrapperRead(){
 // update the output matrix
 // clear the current matrix, query the events map for any changes and process any
 void ThermalEventCamera::update(){
+	if(this->clearSigns){
+		std::fill(std::begin(this->out),std::end(this->out),0);
+	}
 	// if there are events in the queue
 	if(!this->events.empty())
 	{

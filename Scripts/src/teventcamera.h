@@ -75,6 +75,9 @@ class ThermalEventCamera {
 	public:
 		signed short out[834] {0}; // output array of sign changes
 		float emissivity = 1; // emissivity used in temperature conversions
+		// flag to fill with signs matrix with 0s before updating
+		// not recommended if using the threaded interface
+		bool clearSigns = false;
 
 		ThermalEventCamera(); // constructor that sets to 32 fps
 		ThermalEventCamera(int fps); // constructor with fps argument
