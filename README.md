@@ -8,6 +8,7 @@ This repo is an attempt at converting a MLX90640 thermal camera into an event ca
 
 ## Requirements
  - [mlx90640 library](https://github.com/pimoroni/mlx90640-library)
+ - [HDF5](https://portal.hdfgroup.org/display/support) (Optional)
 
 ## Survey Paper
  - Gallego, G., Delbruck, T., Orchard, G., Bartolozzi, C., Taba, B., Censi, A., Leutenegger, S., Davison, A., Conradt, J., Daniilidis, K., Scaramuzza, D.,
@@ -45,7 +46,7 @@ To delete built binaries and .o files
 make clean
 ```
 
-**NOTE: To build tevent_example, run [build_teventexample](build_teventexample.sh). The compilation instructions aren't currently in the Makefile**
+**To build the HDF5 examples, run the [build_hdf5stat.sh](build_hdf5stat.sh) script. It uses the h5c++ utility setup by installing the HDF5 library**
 
 ## Scripts
 ### Source
