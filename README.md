@@ -207,3 +207,5 @@ int main()
 	}
 }
 ```
+
+Investigations into the properties of the sensor noise floor can be found in the [FILTER.md](FILTER.md) document.
