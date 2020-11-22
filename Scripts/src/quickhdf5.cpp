@@ -1,6 +1,6 @@
 #include "quickhdf5.h"
 
-EventRecorder::EventRecorder(const char* fname,int nfps){
+EventRecorder::EventRecorder(const char* fname){
     // open the file
     this->file.openFile(fname,H5F_ACC_TRUNC);
     /* set dataset parameters */
