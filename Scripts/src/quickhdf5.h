@@ -4,7 +4,7 @@
 // as the sizes and data types are known we can define and manage the size and dataslab
 class EventRecorder{
     public:
-        virtual EventRecorder(const char* fname bool addTime=true);
+        virtual EventRecorder(const char* fname,int nfps);
         virtual ~EventRecorder();
   
         H5::H5File f; // file object
@@ -15,7 +15,7 @@ class EventRecorder{
         bool hasTimeSeries(){return this->hasTime;}; // return state of hasTime flag
   
     private:
-        bool hasTime = false; // flag to indicate if a time dataset is/has been added
+	int fps=0; // fps of logging
 	/*data dimensions*/
         hsize_t dimsext[2] = {834,1}; // current size of the dataset as we extend it
         hsize_t dims[2] = {834,1}; // starter dimensions
