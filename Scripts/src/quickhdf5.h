@@ -18,6 +18,7 @@ class EventRecorder{
 	void close(); // close file
     private:
 	std::chrono::time_point rec_start = std::chrono::system_clock::now(); // start time
+	std::chrono::time_point last_rec = std::chrono::system_clock::now(); // time of last frame recording
 	std::chrono::microseconds elapsed = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now()); // elapsed time of recording
 	std::chrono::time_point rec_end = std::chrono::system_clock::now(); // end time of recording
 	int fps=0; // fps of logging
