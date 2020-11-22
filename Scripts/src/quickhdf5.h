@@ -4,7 +4,7 @@
 // as the sizes and data types are known we can define and manage the size and dataslab
 class EventRecorder{
     public:
-        virtual EventRecorder(const char* fname,int nfps);
+        virtual EventRecorder(const char* fname,int nfps = 32);
         virtual ~EventRecorder();
   
         H5::H5File f; // file object
