@@ -23,13 +23,15 @@ class EventRecorder{
         hsize_t offset[2] = {0,0}; // offset for hyperslab
 	hsize_t maxdims[2] = {834,H5S_UNLIMITED};
 	H5::DataSpace dataspace(2,dims,maxdims); // dataspace for data
+	H5::DataSet* dset;
 	/*time series dimensions*/
 	hsize_t tdimsext[2] = {1,1}; // current size of the dataset as we extend it
         hsize_t tdims[2] = {1,1}; // starter dimensions
         hsize_t tchunk_dims[2] = {1,1}; // dunk dims
         hsize_t toffset[2] = {0,0}; // offset for hyperslab
 	hsize_t tmaxdims[2] = {1,H5S_UNLIMITED};
-	H5::DataSpace timespace(2,tdims,tmaxdims}
+	H5::DataSpace timespace(2,tdims,tmaxdims);
+	H5::DataSet* tset;
       	// dataspace for hyperslab
       	H5::DataSpace slab;
       	// parameters
