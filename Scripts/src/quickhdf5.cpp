@@ -60,13 +60,13 @@ int EventRecorder::writeFrame(uint16_t frame[834]){
            // increase offset
            this->offset[1]+=1;
        }catch(H5::FileIException error){
-			std::cerr << "Dataspace HDF5 File Exception! Closing file! " << error << std::endl;
-			error.printErrorStack();
-			return 1;
-	   }catch(H5::DataSetIException error){
-			std::cout << "Dataspace HDF5 Dataset Exception! Closing file" << std::endl;
-			error.printErrorStack();
-			return 2;
+	    std::cerr << "Dataspace HDF5 File Exception! Closing file! " << error << std::endl;
+	    error.printErrorStack();
+	    return 1;
+       }catch(H5::DataSetIException error){
+	    std::cout << "Dataspace HDF5 Dataset Exception! Closing file" << std::endl;
+	    error.printErrorStack();
+	    return 2;
        }catch(H5::DataSpaceIException error){
             std::cout << "Dataspace HDF5 Dataspace Exception! Closing file" << std::endl;
             error.printErrorStack();
@@ -86,13 +86,13 @@ int EventRecorder::writeFrame(uint16_t frame[834]){
            // increase offset
            this->toffset[1]+=1;
        }catch(H5::FileIException error){
-			std::cerr << "Timespace HDF5 File Exception! Closing file! " << error << std::endl;
-			error.printErrorStack();
-			return 4;
-	   }catch(H5::DataSetIException error){
-			std::cout << "Timespace HDF5 Dataset Exception! Closing file" << std::endl;
-			error.printErrorStack();
-			return 5;
+	   std::cerr << "Timespace HDF5 File Exception! Closing file! " << error << std::endl;
+	   error.printErrorStack();
+	   return 4;
+       }catch(H5::DataSetIException error){
+	   std::cout << "Timespace HDF5 Dataset Exception! Closing file" << std::endl;
+	   error.printErrorStack();
+	   return 5;
        }catch(H5::DataSpaceIException error){
             std::cout << "Timespace HDF5 Dataspace Exception! Closing file" << std::endl;
             error.printErrorStack();
