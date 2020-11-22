@@ -21,8 +21,6 @@ class EventRecorder{
 	std::chrono::time_point last_rec = std::chrono::system_clock::now(); // time of last frame recording
 	std::chrono::microseconds elapsed = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now()); // elapsed time of recording
 	std::chrono::time_point rec_end = std::chrono::system_clock::now(); // end time of recording
-	int fps=0; // fps of logging
-	long frame_time_micros = 0; // delay between recordings
 	/*data dimensions*/
         hsize_t dimsext[2] = {834,1}; // current size of the dataset as we extend it
         hsize_t dims[2] = {834,1}; // starter dimensions
