@@ -5,17 +5,18 @@
 // as the sizes and data types are known we can define and manage the size and dataslab
 class EventRecorder{
     public:
-        virtual EventRecorder(const char* fname,int nfps = 32); // create recorder with filename and fps of recording
+        virtual EventRecorder(const char* fname); // create recorder with filename and fps of recording
         virtual ~EventRecorder(); // deconstructor of recording. ensures that the file is closed
   
         H5::H5File f; // file object
         const auto dtype = H5::PredType::NATIVE_UINT16; // data type of file
 	const auto ttype = H5::PredType::NATIVE_ULONG // data type of time series. set to long for extended recording
   
-        void writeFrame(uint16_t frame[834]); // write frame to file
+        int writeFrame(uint16_t frame[834]); // write frame to file
   	std::chrono::time_point getStartTime(){return this->rec_start;}; // get start time of recording
 	std::chrono::time_point getEndTime(){return this->rec_end;}; // get end time of recording
 	void close(); // close file
+	hsize_t getNumFrames(){return this->dimsext[1];}; // get the total number of frames 
     private:
 	std::chrono::time_point rec_start = std::chrono::system_clock::now(); // start time
 	std::chrono::time_point rec_end = std::chrono::system_clock::now(); // end time of recording
