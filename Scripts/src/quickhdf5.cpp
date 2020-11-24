@@ -31,12 +31,10 @@ EventRecorder::EventRecorder(const char* fname){
 // deconstructor to ensure that the hdf5 file is closed
 EventRecorder::~EventRecorder(){
     this->f.close(); // close hdf5 file
-    this->rec_end = std::chrono::system_clock::now(); // update ending recorded file
 }
 
 void EventRecorder::close(){
     this->f.close(); // ensure file is closed
-    this->rec_end = std::chrono::system_clock::now(); // update end recording time
 }
 
 // write frame to file
@@ -103,6 +101,7 @@ int EventRecorder::writeFrame(uint16_t frame[834]){
             error.printErrorStack();
             return 6;
        }
-
+	// update last time frame was written
+       this->rec_end = tt;
        return 0;
 }
