@@ -156,6 +156,22 @@ void ThermalEventCamera::interpOutliers(uint16_t (&cf)[832])
 	std::copy(std::begin(this->eeMLX90640),std::end(this->eeMLX90640),std::begin(cf));
 }
 
+// interpolate outliers and calculate temperature frame
+void ThermalEventCamera::getTemperature(float (&cf)[768])
+{
+	std::mutex mx;
+	std::unique_lock<std::mutex> lck(mx);
+	// interpolate outliers
+	// uses matrix setup by *_ExtractParameters call in constructor
+	MLX90640_InterpolateOutliers(this->frame,this->eeMLX90640);
+	// get environmental temperature
+	this->eTa = MLX90640_GetTa(this->frame, &this->mlx90640); // Sensor ambient temprature
+	//calculate temprature of all pixels, based on current set emissivity
+	//updates given array directly
+	MLX90640_CalculateTo(his->frame, &this->mlx90640, this->emissivity, this->eTa, cf);
+	// free mutex so the thread can keep running
+	lck.unlock();
+}
 // start the threaded I2C read
 void ThermalEventCamera::start()
 {
