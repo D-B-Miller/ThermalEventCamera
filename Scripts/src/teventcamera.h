@@ -112,6 +112,8 @@ class ThermalEventCamera {
 		bool getCompareFlag();
 		// interpolate outliers
 		void interpOutliers(uint16_t (&cf)[832]);
+		// get temperature frame
+		void getTemperature(float (&cf)[768]);
 	private:
 		// flag stating if the compare function has been set
 		bool cmpSet = false;
