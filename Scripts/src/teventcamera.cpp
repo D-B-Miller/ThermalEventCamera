@@ -168,7 +168,7 @@ void ThermalEventCamera::getTemperature(float (&cf)[768])
 	this->eTa = MLX90640_GetTa(this->frame, &this->mlx90640); // Sensor ambient temprature
 	//calculate temprature of all pixels, based on current set emissivity
 	//updates given array directly
-	MLX90640_CalculateTo(his->frame, &this->mlx90640, this->emissivity, this->eTa, cf);
+	MLX90640_CalculateTo(this->frame, &this->mlx90640, this->emissivity, this->eTa, cf);
 	// free mutex so the thread can keep running
 	lck.unlock();
 }
