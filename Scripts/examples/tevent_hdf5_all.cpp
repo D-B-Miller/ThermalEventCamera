@@ -37,101 +37,101 @@ int main(){
 	// dataset parameters
 	// they are defined seperately so the user can adjust each dataset
 	// according to their need
-	H5::DSetCreatPropList cparams,dparams,tparams,oparams;
+	H5::DSetCreatPropList temp_params,raw_params,time_params,sign_params;
 	// dataspace for hyperslab
 	H5::DataSpace slab;
 
 	/* temperature data */
 	static float temp[768]; // in
 	// new dimensions once extended, updated in loop
-	hsize_t fdimsext[3] = {24,32,1};
+	hsize_t temp_dimsext[3] = {24,32,1};
         // starter dimensions
-        hsize_t fdims[3] = {24,32,1};
-    	hsize_t fmaxdims[3] = {24,32,H5S_UNLIMITED};
+        hsize_t temp_dims[3] = {24,32,1};
+    	hsize_t temp_maxdims[3] = {24,32,H5S_UNLIMITED};
     	// size of chunks
-    	hsize_t fchunk_dims[3] = {24,32,1};
+    	hsize_t temp_chunk_dims[3] = {24,32,1};
     	// offset for hyperslab
-    	hsize_t foffset[3] = {0,0,0};
-	H5::DataSpace dataspace(3,fdims,fmaxdims);
+    	hsize_t temp_offset[3] = {0,0,0};
+	H5::DataSpace temp_dataspace(3,temp_dims,temp_maxdims);
 
 	/* frame data */
 	uint16_t frame[834]; // matrix to hold raw camera data
-	hsize_t dimsext[2] = {834,1}; // current size of the dataset as we extend it
-    	hsize_t dims[2] = {834,1}; // starter dimensions
-    	hsize_t chunk_dims[2] = {834,1}; // dunk dims
-    	hsize_t offset[2] = {0,0}; // offset for hyperslab
-	hsize_t maxdims[2] = {834,H5S_UNLIMITED}; // max dims of dataset, set to unlimited to allow extension
-	H5::DataSpace fdataspace = H5::DataSpace(2,dims,maxdims); // dataspace for data
+	hsize_t raw_dimsext[2] = {834,1}; // current size of the dataset as we extend it
+    	hsize_t raw_dims[2] = {834,1}; // starter dimensions
+    	hsize_t raw_chunk_dims[2] = {834,1}; // dunk dims
+    	hsize_t raw_offset[2] = {0,0}; // offset for hyperslab
+	hsize_t raw_maxdims[2] = {834,H5S_UNLIMITED}; // max dims of dataset, set to unlimited to allow extension
+	H5::DataSpace raw_dataspace = H5::DataSpace(2,raw_dims,raw_maxdims); // dataspace for data
 
 	/*time series dimensions*/
-	hsize_t tdimsext[1] = {1}; // current size of the dataset as we extend it
-    	hsize_t tdims[1] = {1}; // starter dimensions
-    	hsize_t tchunk_dims[1] = {1}; // dunk dims
-    	hsize_t toffset[2] = {0,0}; // offset for hyperslab
-	hsize_t tmaxdims[2] = {H5S_UNLIMITED};
-	H5::DataSpace timespace = H5::DataSpace(1,tdims,tmaxdims);
+	hsize_t time_dimsext[1] = {1}; // current size of the dataset as we extend it
+    	hsize_t time_dims[1] = {1}; // starter dimensions
+    	hsize_t time_chunk_dims[1] = {1}; // dunk dims
+    	hsize_t time_offset[1] = {0}; // offset for hyperslab
+	hsize_t time_maxdims[1] = {H5S_UNLIMITED};
+	H5::DataSpace timespace = H5::DataSpace(1,time_dims,time_maxdims);
 	
 	/*event data output flag*/
-	hsize_t odimsext[2] = {834,1}; // current size of the dataset as we extend it
-    	hsize_t odims[2] = {834,1}; // starter dimensions
-    	hsize_t ochunk_dims[2] = {834,1}; // dunk dims
-    	hsize_t ooffset[2] = {0,0}; // offset for hyperslab
-	hsize_t omaxdims[2] = {834,H5S_UNLIMITED}; // max dims of dataset, set to unlimited to allow extension
-	H5::DataSpace odataspace = H5::DataSpace(2,odims,omaxdims); // dataspace for data
+	hsize_t signs_dimsext[2] = {834,1}; // current size of the dataset as we extend it
+    	hsize_t signs_dims[2] = {834,1}; // starter dimensions
+    	hsize_t signs_chunk_dims[2] = {834,1}; // dunk dims
+    	hsize_t signs_offset[2] = {0,0}; // offset for hyperslab
+	hsize_t signs_maxdims[2] = {834,H5S_UNLIMITED}; // max dims of dataset, set to unlimited to allow extension
+	H5::DataSpace signs_dataspace = H5::DataSpace(2,signs_dims,signs_maxdims); // dataspace for data
 
     	// open the file
     	H5::H5File f(fname,H5F_ACC_TRUNC);
 	
     	/* set dataset parameters */
-    	// set chunking for time series and data set
-    	dparams.setChunk(2,chunk_dims);
+    	// set chunking for raw data
+    	raw_params.setChunk(2,raw_chunk_dims);
     	// set compression
-    	dparams.setDeflate(6);
+    	raw_params.setDeflate(6);
     	// fill dataset
     	uint16_t dset_fill_val = 0;
 	H5::PredType dtype = H5::PredType::NATIVE_UINT16;
-    	dparams.setFillValue(dtype,&dset_fill_val);
+    	raw_params.setFillValue(dtype,&dset_fill_val);
     	// create dataset to hold frames
-    	H5::DataSet dset = f.createDataSet("tevent",dtype,dataspace,dparams);
-    	dataspace = dset.getSpace();
-    	dparams.close();
+    	H5::DataSet raw_set = f.createDataSet("tevent",dtype,raw_dataspace,raw_params);
+    	raw_dataspace = raw_set.getSpace();
+    	raw_params.close();
 
 	/* set time series dataset */
 	// set parameters for dataset
-	tparams.setChunk(2,tchunk_dims);
+	time_params.setChunk(2,time_chunk_dims);
 	// set compression
-	tparams.setDeflate(6);
+	time_params.setDeflate(6);
 	long long time_fill_val = 0;
 	H5::PredType ttype = H5::PredType::NATIVE_LLONG;
-	tparams.setFillValue(ttype,&time_fill_val);
+	time_params.setFillValue(ttype,&time_fill_val);
 	// create dataset to hold time values
-	H5::DataSet tset = f.createDataSet("time",ttype,timespace,tparams);
-	timespace = tset.getSpace();
+	H5::DataSet time_set = f.createDataSet("time",ttype,timespace,time_params);
+	timespace = time_set.getSpace();
 	tparams.close();
 
 	/* temperature parameters */
 	// modify dataset creation properties to enable chunking
-	cparams.setChunk(3,chunk_dims);
+	temp_params.setChunk(3,chunk_dims);
 	// set the initial value of the dataset
 	static float temp_fill_val = 0.0;
 	H5::PredType ftype = H5::PredType::NATIVE_FLOAT;
-	cparams.setFillValue(ftype,&temp_fill_val);
-	H5::DataSet fset = f.createDataSet("temperature",ftype,fdataspace,cparams);
-	cparams.close();
+	temp_params.setFillValue(ftype,&temp_fill_val);
+	H5::DataSet temp_set = f.createDataSet("temperature",ftype,temp_dataspace,temp_params);
+	temp_params.close();
 	
 	/*sign matrix parameters*/
 	// set chunking for time series and data set
-    	oparams.setChunk(2,chunk_dims);
+    	sign_params.setChunk(2,signs_chunk_dims);
     	// set compression
-    	oparams.setDeflate(6);
+    	sign_params.setDeflate(6);
     	// fill dataset
     	signed short sign_fill_val = 0;
 	H5::PredType stype = H5::PredType::NATIVE_SHORT;
-    	oparams.setFillValue(stype,&sign_fill_val);
+    	sign_params.setFillValue(stype,&sign_fill_val);
     	// create dataset to hold frames
-    	H5::DataSet oset = f.createDataSet("signs",stype,odataspace,oparams);
-    	odataspace = oset.getSpace();
-    	oparams.close();
+    	H5::DataSet signs_set = f.createDataSet("signs",stype,signs_dataspace,sign_params);
+    	signs_dataspace = signs_set.getSpace();
+    	sign_params.close();
 
 	// get start time of writing
     	auto startt = std::chrono::system_clock::now();
@@ -143,54 +143,54 @@ int main(){
 		cam.read(); // read frame
 		cam.getFrame(frame); // get a copy of it
 		// get hyperslab
-		slab = dset.getSpace();
-		slab.selectHyperslab(H5S_SELECT_SET,chunk_dims,offset);
+		slab = raw_dset.getSpace();
+		slab.selectHyperslab(H5S_SELECT_SET,raw_chunk_dims,raw_offset);
 		// write event camera data
-		dset.write(frame,dtype,dataspace,slab);
+		raw_set.write(frame,dtype,raw_dataspace,slab);
 		
 		///// temperature data
-		slab = fset.getSpace();
-		slab.selectHyperslab(H5S_SELECT_SET,fchunk_dims,foffset);
+		slab = temp_set.getSpace();
+		slab.selectHyperslab(H5S_SELECT_SET,temp_chunk_dims,temp_offset);
 		// get temperature values
 		cam.getTemperature(temp);
 		// write temperature to dataset
-		fset.write(temp,ftype,fdataspace,slab);
+		temp_set.write(temp,ftype,temp_dataspace,slab);
 		
 		///// signs matrix
 		// get hyperslab
-		slab = oset.getSpace();
-		slab.selectHyperslab(H5S_SELECT_SET,ochunk_dims,ooffset);
+		slab = signs_set.getSpace();
+		slab.selectHyperslab(H5S_SELECT_SET,signs_chunk_dims,signs_offset);
 		// write event camera data
-		oset.write(cam.out,otype,odataspace,slab);
+		signs_set.write(cam.out,stype,signs_dataspace,slab);
 		
 		///// log time
-		slab = tset.getSpace();
-		slab.selectHyperslab(H5S_SELECT_SET,tchunk_dims,toffset);
+		slab = time_set.getSpace();
+		slab.selectHyperslab(H5S_SELECT_SET,time_chunk_dims,time_offset);
 		// get elapsed time since start in milliseconds
 		auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(tt-startt);
 		// write elapsed time to data
-		tset.write(elapsed.count(),ftype,tspace,slab);
+		time_set.write(elapsed.count(),ttype,timespace,slab);
 
 		/* prep for next iteration */
 		//// extend temperature dataset
-		fdimsext[1]+=1;
-		fdataset.extend(fdimsext);
+		temp_dimsext[2]+=1;
+		temp_set.extend(temp_dimsext);
 		// increase offset for next frame
-		foffset[1]+=1;
+		temp_offset[2]+=1;
 		//// extend raw data dataset
-		dimsext[1]+=1;
-		dataset.extend(dimsext);
+		raw_dimsext[1]+=1;
+		raw_set.extend(raw_dimsext);
 		// increase offset for next frame
-		offset[1]+=1;
+		raw_offset[1]+=1;
 		//// extend signs matrix
-		odimsext[1]+=1;
-		odataset.extend(odimsext);
-		oofset[1]+=1;
+		signs_dimsext[1]+=1;
+		signs_set.extend(signs_dimsext);
+		signs_offset[0]+=1;
 		//// extend time dataset
-		tdimsext[2]+=1;
-		tdataset.extend(tdimsext);
+		time_dimsext[0]+=1;
+		time_set.extend(time_dimsext);
 		// increase offset for next frame
-		toffset[2]+=1;
+		time_offset[0]+=1;
 		
 		// check elapsed time against time limit
 		if(elapsed.count()>=tlim){
