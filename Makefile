@@ -12,8 +12,8 @@ examples_objects = $(addsuffix .o,$(addprefix $(EXP_DIR), $(examples)))
 examples_output = $(addprefix $(BUILD_DIR), $(examples))
 
 hdf5 = tevent_hdf5_all tevent_hdf5 tevent_hdf5_interp quickhdf5_example
-hdf5_objects = $(addsuffix .o,$(addprefix $(EXP_DIR), $(examples)))
-hdf5_output = $(addprefix $(BUILD_DIR), $(examples))
+hdf5_objects = $(addsuffix .o,$(addprefix $(EXP_DIR), $(hdf5)))
+hdf5_output = $(addprefix $(BUILD_DIR), $(hdf5))
 
 ifeq ($(PREFIX),)
 	PREFIX = /usr/local
