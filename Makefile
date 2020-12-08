@@ -35,8 +35,10 @@ $(BUILD_DIR)tevent_example: $(SRC_DIR)teventcamera.cpp $(EXP_DIR)tevent_example.
 $(BUILD_DIR)tevent_compare: $(SRC_DIR)teventcamera.cpp $(EXP_DIR)tevent_compare.cpp $(MLX_DIR)libMLX90640_API.a
 	$(CXX) $(CXXFLAGS) -lpthread -L$(MLX_DIR) $^ -o $@ $(I2C_LIBS)
 
-
 $(BUILD_DIR)tevent_stats: $(SRC_DIR)teventcamera.cpp $(EXP_DIR)tevent_stats.cpp $(MLX_DIR)libMLX90640_API.a
+	$(CXX) $(CXXFLAGS) -lpthread -L$(MLX_DIR) $^ -o $@ $(I2C_LIBS)
+	
+$(BUILD_DIR)tevent_all: $(SRC_DIR)teventcamera.cpp $(EXP_DIR)tevent_hdf5_all.cpp $(MLX_DIR)libMLX90640_API.a
 	$(CXX) $(CXXFLAGS) -lpthread -L$(MLX_DIR) $^ -o $@ $(I2C_LIBS)
 
 clean:
