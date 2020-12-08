@@ -70,7 +70,7 @@ int main(){
     	hsize_t time_offset[1] = {0}; // offset for hyperslab
 	hsize_t time_maxdims[1] = {H5S_UNLIMITED};
 	H5::DataSpace timespace = H5::DataSpace(1,time_dims,time_maxdims);
-	
+
 	/*event data output flag*/
 	hsize_t signs_dimsext[2] = {834,1}; // current size of the dataset as we extend it
     	hsize_t signs_dims[2] = {834,1}; // starter dimensions
@@ -81,7 +81,7 @@ int main(){
 
     	// open the file
     	H5::H5File f(fname,H5F_ACC_TRUNC);
-	
+
     	/* set dataset parameters */
     	// set chunking for raw data
     	raw_params.setChunk(2,raw_chunk_dims);
@@ -102,7 +102,7 @@ int main(){
 	// set compression
 	time_params.setDeflate(6);
 	long long time_fill_val = 0;
-	H5::PredType ttype = H5::PredType::NATIVE_INT64;
+	H5::PredType ttype = H5::PredType::NATIVE_LLONG;
 	time_params.setFillValue(ttype,&time_fill_val);
 	// create dataset to hold time values
 	H5::DataSet time_set = f.createDataSet("time",ttype,timespace,time_params);
@@ -118,7 +118,7 @@ int main(){
 	temp_params.setFillValue(ftype,&temp_fill_val);
 	H5::DataSet temp_set = f.createDataSet("temperature",ftype,temp_dataspace,temp_params);
 	temp_params.close();
-	
+
 	/*sign matrix parameters*/
 	// set chunking for time series and data set
     	sign_params.setChunk(2,signs_chunk_dims);
@@ -147,7 +147,7 @@ int main(){
 		slab.selectHyperslab(H5S_SELECT_SET,raw_chunk_dims,raw_offset);
 		// write event camera data
 		raw_set.write(frame,dtype,raw_dataspace,slab);
-		
+
 		///// temperature data
 		slab = temp_set.getSpace();
 		slab.selectHyperslab(H5S_SELECT_SET,temp_chunk_dims,temp_offset);
@@ -155,21 +155,22 @@ int main(){
 		cam.getTemperature(temp);
 		// write temperature to dataset
 		temp_set.write(temp,ftype,temp_dataspace,slab);
-		
+
 		///// signs matrix
 		// get hyperslab
 		slab = signs_set.getSpace();
 		slab.selectHyperslab(H5S_SELECT_SET,signs_chunk_dims,signs_offset);
 		// write event camera data
 		signs_set.write(cam.out,stype,signs_dataspace,slab);
-		
+
 		///// log time
 		slab = time_set.getSpace();
 		slab.selectHyperslab(H5S_SELECT_SET,time_chunk_dims,time_offset);
 		// get elapsed time since start in milliseconds
 		auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(tt-startt);
+		long long dur[1] = {elapsed.count()};
 		// write elapsed time to data
-		time_set.write(elapsed.count(),ttype,timespace,slab);
+		time_set.write(dur,ttype,timespace,slab);
 
 		/* prep for next iteration */
 		//// extend temperature dataset
