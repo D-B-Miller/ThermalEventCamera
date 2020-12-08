@@ -23,12 +23,17 @@ ifeq ($(I2C_MODE), LINUX)
 	I2C_LIBS = 
 endif
 
-all: examples
+all: examples hdf5
 
 examples: $(examples_output)
 
-$(examples_objecgs) : CXXFLAGS+=-std=c++17 -O2 -I$(MLX_DIR)
+$(examples_objects) : CXXFLAGS+=-std=c++17 -O2 -I$(MLX_DIR)
 $(examples_output) : CXXFLAGS+=-I$(MLX_DIR) -I$(SRC_DIR) -std=c++17 -Wall -O2
+
+hdf5: $(hdf5_output)
+
+$(hdf5_objects) : CXXFLAGS+=-std=c++17 -O2 -I$(MLX_DIR)
+$(hdf5_output) : CXXFLAGS+=-I$(MLX_DIR) -I$(SRC_DIR) -std=c++17 -Wall -O2
 
 $(BUILD_DIR)eventthermalcamera: $(EXP_DIR)eventthermalcamera.o $(MLX_DIR)libMLX90640_API.a
 	$(CXX) -L/home/pi/mlx90640-library-master $^ -o $@ $(I2C_LIBS)
