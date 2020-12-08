@@ -92,7 +92,7 @@ int main(){
 	H5::PredType dtype = H5::PredType::NATIVE_UINT16;
     	raw_params.setFillValue(dtype,&dset_fill_val);
     	// create dataset to hold frames
-    	H5::DataSet raw_set = f.createDataSet("tevent",dtype,raw_dataspace,raw_params);
+    	H5::DataSet raw_set = f.createDataSet("raw",dtype,raw_dataspace,raw_params);
     	raw_dataspace = raw_set.getSpace();
     	raw_params.close();
 
@@ -102,16 +102,16 @@ int main(){
 	// set compression
 	time_params.setDeflate(6);
 	long long time_fill_val = 0;
-	H5::PredType ttype = H5::PredType::NATIVE_LLONG;
+	H5::PredType ttype = H5::PredType::NATIVE_INT64;
 	time_params.setFillValue(ttype,&time_fill_val);
 	// create dataset to hold time values
 	H5::DataSet time_set = f.createDataSet("time",ttype,timespace,time_params);
 	timespace = time_set.getSpace();
-	tparams.close();
+	time_params.close();
 
 	/* temperature parameters */
 	// modify dataset creation properties to enable chunking
-	temp_params.setChunk(3,chunk_dims);
+	temp_params.setChunk(3,temp_chunk_dims);
 	// set the initial value of the dataset
 	static float temp_fill_val = 0.0;
 	H5::PredType ftype = H5::PredType::NATIVE_FLOAT;
@@ -143,7 +143,7 @@ int main(){
 		cam.read(); // read frame
 		cam.getFrame(frame); // get a copy of it
 		// get hyperslab
-		slab = raw_dset.getSpace();
+		slab = raw_set.getSpace();
 		slab.selectHyperslab(H5S_SELECT_SET,raw_chunk_dims,raw_offset);
 		// write event camera data
 		raw_set.write(frame,dtype,raw_dataspace,slab);
