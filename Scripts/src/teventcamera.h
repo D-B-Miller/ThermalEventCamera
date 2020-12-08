@@ -116,10 +116,6 @@ class ThermalEventCamera {
 		void getTemperature(float (&cf)[768]);
 		// get environmental temperature used in last frame grab
 		float getEta(){return this->eTa;};
-		// get set methods for emissivity
-		void setEm(float ne){this->emissivity = ne};
-		float getEm(){return this->emissivity;};
-	
 	private:
 		// flag stating if the compare function has been set
 		bool cmpSet = false;
@@ -143,6 +139,5 @@ class ThermalEventCamera {
 		std::atomic<bool> stopFlag {true}; // flag to stop the thread from running
 		std::mutex print_mutex; // mutex to help the different threads print to cout
 		float eTa = 0.0; // update environmental temperature
-		float emissivity = 0.8; // emissivity used in temperature calculations
 };
 #endif
