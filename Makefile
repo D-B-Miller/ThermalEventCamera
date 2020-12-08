@@ -7,7 +7,7 @@ HEAD_DIR = Scripts/src/
 BUILD_DIR = Scripts/bin/
 MLX_DIR = /home/pi/mlx90640-library-master/
 
-examples = eventthermalcamera tevent_example tevent_compare tevent_stats
+examples = eventthermalcamera tevent_example tevent_compare tevent_stats tevent_hdf5_all
 examples_objects = $(addsuffix .o,$(addprefix $(EXP_DIR), $(examples)))
 examples_output = $(addprefix $(BUILD_DIR), $(examples))
 
@@ -37,9 +37,9 @@ $(BUILD_DIR)tevent_compare: $(SRC_DIR)teventcamera.cpp $(EXP_DIR)tevent_compare.
 
 $(BUILD_DIR)tevent_stats: $(SRC_DIR)teventcamera.cpp $(EXP_DIR)tevent_stats.cpp $(MLX_DIR)libMLX90640_API.a
 	$(CXX) $(CXXFLAGS) -lpthread -L$(MLX_DIR) $^ -o $@ $(I2C_LIBS)
-	
-$(BUILD_DIR)tevent_all: $(SRC_DIR)teventcamera.cpp $(EXP_DIR)tevent_hdf5_all.cpp $(MLX_DIR)libMLX90640_API.a
-	$(CXX) $(CXXFLAGS) -lpthread -L$(MLX_DIR) $^ -o $@ $(I2C_LIBS)
+
+$(BUILD_DIR)tevent_hdf5_all: $(SRC_DIR)teventcamera.cpp $(EXP_DIR)tevent_hdf5_all.cpp $(MLX_DIR)libMLX90640_API.a
+	h5c++ $(CXXFLAGS) -lpthread -L$(MLX_DIR) $^ -o $@ $(I2C_LIBS)
 
 clean:
 	rm -f $(examples_output)
