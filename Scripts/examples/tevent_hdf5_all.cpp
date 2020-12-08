@@ -55,7 +55,7 @@ int main(){
 	H5::DataSpace dataspace(3,fdims,fmaxdims);
 
 	/* frame data */
-	uint16_t frame[834];
+	uint16_t frame[834]; // matrix to hold raw camera data
 	hsize_t dimsext[2] = {834,1}; // current size of the dataset as we extend it
     	hsize_t dims[2] = {834,1}; // starter dimensions
     	hsize_t chunk_dims[2] = {834,1}; // dunk dims
@@ -81,6 +81,7 @@ int main(){
 
     	// open the file
     	H5::H5File f(fname,H5F_ACC_TRUNC);
+	
     	/* set dataset parameters */
     	// set chunking for time series and data set
     	dparams.setChunk(2,chunk_dims);
