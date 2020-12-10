@@ -23,15 +23,18 @@ bool noise_filt(uint16_t c, uint16_t p)
 
 int main(){
 	// create event camera
+	std::cout << "setting up camera" << std::endl;
 	ThermalEventCamera cam(32);
 	// update comparison function
 	cam.setCompare(noise_filt);
 	// time limit on recording
 	// using long and long as it most closely matches chrono millisecocnds dtype
-	long long tlim = 120;
+	long long tlim = 120*1000;
+	std::cout << "time limit set to " << tlim << "ms" << std::endl;
 	int err = 0; // returned error code
 	// filename of output file
 	char* fname = "recordall.hdf5";
+	std::cout << "filename set to " << fname << std::endl;
 
 	/***** parameters used in hdf5 file *****/
 	// dataset parameters
@@ -81,8 +84,9 @@ int main(){
 
     	// open the file
     	H5::H5File f(fname,H5F_ACC_TRUNC);
-
+		std::cout << "file opened!" << std::endl;
     	/* set dataset parameters */
+		std::cout << "setting parameters for raw data" << std::endl;
     	// set chunking for raw data
     	raw_params.setChunk(2,raw_chunk_dims);
     	// set compression
@@ -97,6 +101,7 @@ int main(){
     	raw_params.close();
 
 	/* set time series dataset */
+	std::cout << "setting parameters for time data" << std::endl;
 	// set parameters for dataset
 	time_params.setChunk(2,time_chunk_dims);
 	// set compression
@@ -110,6 +115,7 @@ int main(){
 	time_params.close();
 
 	/* temperature parameters */
+	std::cout << "setting parameters for temperature data" << std::endl;
 	// modify dataset creation properties to enable chunking
 	temp_params.setChunk(3,temp_chunk_dims);
 	// set the initial value of the dataset
@@ -120,6 +126,7 @@ int main(){
 	temp_params.close();
 
 	/*sign matrix parameters*/
+	std::cout << "setting parameters for signs data" << std::endl;
 	// set chunking for time series and data set
     	sign_params.setChunk(2,signs_chunk_dims);
     	// set compression
