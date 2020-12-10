@@ -195,6 +195,18 @@ int main(){
 		long long dur[1] = {elapsed.count()};
 		// write elapsed time to data
 		time_set.write(dur,ttype,timespace,slab);
+		
+		// check if a keyboard interrupt has been triggered
+		if(key_inter!=0){
+			std::cout << "keyboard interrupt!" << std::endl;
+			err = 4;
+			break;
+		}
+		// check elapsed time against time limit
+		if(elapsed.count()>=tlim){
+			std::cout << "Reached time limit!" << std::endl;
+			break;
+		}
 
 		/* prep for next iteration */
 		//// extend temperature dataset
@@ -218,17 +230,6 @@ int main(){
 		// increase offset for next frame
 		time_offset[0]+=1;
 		
-		// check if a keyboard interrupt has been triggered
-		if(key_inter!=0){
-			std::cout << "keyboard interrupt!" << std::endl;
-			err = 4;
-			break;
-		}
-		// check elapsed time against time limit
-		if(elapsed.count()>=tlim){
-			std::cout << "Reached time limit!" << std::endl;
-			break;
-		}
        }catch(const H5::FileIException &error){
 			std::cerr << "Dataspace HDF5 File Exception! Closing file! " <<std::endl;
 			error.printErrorStack();
