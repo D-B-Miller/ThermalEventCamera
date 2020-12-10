@@ -103,7 +103,7 @@ int main(){
 	/* set time series dataset */
 	std::cout << "setting parameters for time data" << std::endl;
 	// set parameters for dataset
-	time_params.setChunk(2,time_chunk_dims);
+	time_params.setChunk(1,time_chunk_dims);
 	// set compression
 	time_params.setDeflate(6);
 	long long time_fill_val = 0;
@@ -140,6 +140,7 @@ int main(){
     	signs_dataspace = signs_set.getSpace();
     	sign_params.close();
 
+	std::cout << "starting main writing loop" << std::endl;
 	// get start time of writing
     	auto startt = std::chrono::system_clock::now();
     	while(1){
@@ -150,12 +151,14 @@ int main(){
 		cam.read(); // read frame
 		cam.getFrame(frame); // get a copy of it
 		// get hyperslab
+		std::cout << "writing raw data" << std::endl;
 		slab = raw_set.getSpace();
 		slab.selectHyperslab(H5S_SELECT_SET,raw_chunk_dims,raw_offset);
 		// write event camera data
 		raw_set.write(frame,dtype,raw_dataspace,slab);
 
 		///// temperature data
+		std::cout << "writing temperature data" << std::endl;
 		slab = temp_set.getSpace();
 		slab.selectHyperslab(H5S_SELECT_SET,temp_chunk_dims,temp_offset);
 		// get temperature values
@@ -164,6 +167,7 @@ int main(){
 		temp_set.write(temp,ftype,temp_dataspace,slab);
 
 		///// signs matrix
+		std::cout << "writing signs data" << std::endl;
 		// get hyperslab
 		slab = signs_set.getSpace();
 		slab.selectHyperslab(H5S_SELECT_SET,signs_chunk_dims,signs_offset);
@@ -171,6 +175,7 @@ int main(){
 		signs_set.write(cam.out,stype,signs_dataspace,slab);
 
 		///// log time
+		std::cout << "writing time" << std::endl;
 		slab = time_set.getSpace();
 		slab.selectHyperslab(H5S_SELECT_SET,time_chunk_dims,time_offset);
 		// get elapsed time since start in milliseconds
@@ -183,23 +188,24 @@ int main(){
 		//// extend temperature dataset
 		temp_dimsext[2]+=1;
 		temp_set.extend(temp_dimsext);
-		// increase offset for next frame
 		temp_offset[2]+=1;
+
 		//// extend raw data dataset
 		raw_dimsext[1]+=1;
 		raw_set.extend(raw_dimsext);
-		// increase offset for next frame
 		raw_offset[1]+=1;
+		
 		//// extend signs matrix
 		signs_dimsext[1]+=1;
 		signs_set.extend(signs_dimsext);
-		signs_offset[0]+=1;
+		signs_offset[1]+=1;
+		
 		//// extend time dataset
 		time_dimsext[0]+=1;
 		time_set.extend(time_dimsext);
 		// increase offset for next frame
 		time_offset[0]+=1;
-		
+
 		// check elapsed time against time limit
 		if(elapsed.count()>=tlim){
 			std::cout << "Reached time limit!" << std::endl;
