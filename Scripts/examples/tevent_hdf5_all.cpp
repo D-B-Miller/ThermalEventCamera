@@ -1,6 +1,7 @@
 #include "H5Cpp.h"
 #include <iostream>
 #include <chrono>
+#include <signal.h>
 #include "teventcamera.h"
 
 // noise filter developed through experiments
@@ -20,6 +21,14 @@ bool noise_filt(uint16_t c, uint16_t p)
 	}
 }
 
+// flag for indicating if SIGINT is triggered
+static volatile sig_atomic_t key_inter=0;
+
+// function handler for is SIGINT is detected
+void keyboard_interrupt(int)
+{
+    ++key_inter;
+}
 
 int main(){
 	// create event camera
@@ -36,6 +45,9 @@ int main(){
 	char* fname = "recordall.hdf5";
 	std::cout << "filename set to " << fname << std::endl;
 
+	signal(SIGINT,keyboard_interrupt);
+    std::cout << "Registered signal handler" << std::endl;
+	
 	/***** parameters used in hdf5 file *****/
 	// dataset parameters
 	// they are defined seperately so the user can adjust each dataset
@@ -151,14 +163,14 @@ int main(){
 		cam.read(); // read frame
 		cam.getFrame(frame); // get a copy of it
 		// get hyperslab
-		std::cout << "writing raw data" << std::endl;
+		//std::cout << "writing raw data" << std::endl;
 		slab = raw_set.getSpace();
 		slab.selectHyperslab(H5S_SELECT_SET,raw_chunk_dims,raw_offset);
 		// write event camera data
 		raw_set.write(frame,dtype,raw_dataspace,slab);
 
 		///// temperature data
-		std::cout << "writing temperature data" << std::endl;
+		//std::cout << "writing temperature data" << std::endl;
 		slab = temp_set.getSpace();
 		slab.selectHyperslab(H5S_SELECT_SET,temp_chunk_dims,temp_offset);
 		// get temperature values
@@ -167,7 +179,7 @@ int main(){
 		temp_set.write(temp,ftype,temp_dataspace,slab);
 
 		///// signs matrix
-		std::cout << "writing signs data" << std::endl;
+		//std::cout << "writing signs data" << std::endl;
 		// get hyperslab
 		slab = signs_set.getSpace();
 		slab.selectHyperslab(H5S_SELECT_SET,signs_chunk_dims,signs_offset);
@@ -175,7 +187,7 @@ int main(){
 		signs_set.write(cam.out,stype,signs_dataspace,slab);
 
 		///// log time
-		std::cout << "writing time" << std::endl;
+		//std::cout << "writing time" << std::endl;
 		slab = time_set.getSpace();
 		slab.selectHyperslab(H5S_SELECT_SET,time_chunk_dims,time_offset);
 		// get elapsed time since start in milliseconds
@@ -205,27 +217,33 @@ int main(){
 		time_set.extend(time_dimsext);
 		// increase offset for next frame
 		time_offset[0]+=1;
-
+		
+		// check if a keyboard interrupt has been triggered
+		if(key_inter!=0){
+			std::cout << "keyboard interrupt!" << std::endl;
+			err = 4;
+			break;
+		}
 		// check elapsed time against time limit
 		if(elapsed.count()>=tlim){
 			std::cout << "Reached time limit!" << std::endl;
 			break;
 		}
        }catch(H5::FileIException error){
-		std::cerr << "Dataspace HDF5 File Exception! Closing file! " <<std::endl;
-		error.printErrorStack();
-		err = 1;
-		break;
+			std::cerr << "Dataspace HDF5 File Exception! Closing file! " <<std::endl;
+			error.printErrorStack();
+			err = 1;
+			break;
        }catch(H5::DataSetIException error){
-		std::cerr << "Dataspace HDF5 Dataset Exception! Closing file" <<std::endl;
-		error.printErrorStack();
-		err = 2;
-		break;
+			std::cerr << "Dataspace HDF5 Dataset Exception! Closing file" <<std::endl;
+			error.printErrorStack();
+			err = 2;
+			break;
        }catch(H5::DataSpaceIException error){
-            	std::cerr << "Dataspace HDF5 Dataspace Exception! Closing file" << std::endl;
-            	error.printErrorStack();
-            	err = 3;
-		break;
+            std::cerr << "Dataspace HDF5 Dataspace Exception! Closing file" << std::endl;
+            error.printErrorStack();
+            err = 3;
+			break;
        }
     }
 	// close file
