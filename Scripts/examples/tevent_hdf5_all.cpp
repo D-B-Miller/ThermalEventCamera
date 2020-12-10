@@ -42,7 +42,7 @@ int main(){
 	std::cout << "time limit set to " << tlim << "ms" << std::endl;
 	int err = 0; // returned error code
 	// filename of output file
-	char* fname = "recordall.hdf5";
+	char* fname = (char*)"recordall.hdf5";
 	std::cout << "filename set to " << fname << std::endl;
 
 	signal(SIGINT,keyboard_interrupt);
@@ -229,17 +229,17 @@ int main(){
 			std::cout << "Reached time limit!" << std::endl;
 			break;
 		}
-       }catch(H5::FileIException error){
+       }catch(const H5::FileIException &error){
 			std::cerr << "Dataspace HDF5 File Exception! Closing file! " <<std::endl;
 			error.printErrorStack();
 			err = 1;
 			break;
-       }catch(H5::DataSetIException error){
+       }catch(const H5::DataSetIException &error){
 			std::cerr << "Dataspace HDF5 Dataset Exception! Closing file" <<std::endl;
 			error.printErrorStack();
 			err = 2;
 			break;
-       }catch(H5::DataSpaceIException error){
+       }catch(const H5::DataSpaceIException &error){
             std::cerr << "Dataspace HDF5 Dataspace Exception! Closing file" << std::endl;
             error.printErrorStack();
             err = 3;
